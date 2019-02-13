@@ -1,0 +1,30 @@
+Avoid __builtin_ffs which cause
+
+CC-147 craycc: ERROR
+  Declaration is incompatible with "int ffs(int)" (declared at line 521 of
+          "/usr/include/string.h").
+
+Also remove conditional statement that was likely never be taken given
+the uses of first_lsb_bit_indx and is otherwise equivalent to ffs(x)-1
+when x==0.
+
+--- hypre-2.11.1/src/utilities/hypre_hopscotch_hash.h.orig	2016-06-09 09:56:18.000000000 -0500
++++ hypre-2.11.1/src/utilities/hypre_hopscotch_hash.h	2016-11-02 16:57:44.001679000 -0500
+@@ -48,6 +48,7 @@
+ #ifndef hypre_HOPSCOTCH_HASH_HEADER
+ #define hypre_HOPSCOTCH_HASH_HEADER
+ 
++#include <strings.h>
+ #include <stdio.h>
+ #include <limits.h>
+ #include <assert.h>
+@@ -133,8 +134,7 @@
+ #ifdef HYPRE_CONCURRENT_HOPSCOTCH
+ static inline HYPRE_Int first_lsb_bit_indx(hypre_uint x) 
+ {
+-  if (0 == x) return -1;
+-  return __builtin_ffs(x) - 1;
++  return ffs(x) - 1;
+ }
+ #endif
+ /**

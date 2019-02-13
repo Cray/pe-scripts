@@ -1,0 +1,17 @@
+A Cray user had a need for the continued existence of this function.
+
+--- hypre-2.9.0b/src/utilities/hypre_mpi_comm_f2c.c
++++ hypre-2.9.0b/src/utilities/hypre_mpi_comm_f2c.c
+@@ -19,7 +19,6 @@
+ /*--------------------------------------------------------------------------
+  *--------------------------------------------------------------------------*/
+ 
+-#if 0 /* This function is problematic and no longer needed anyway. */
+ void
+ hypre_F90_IFACE(hypre_mpi_comm_f2c, HYPRE_MPI_COMM_F2C)
+    (hypre_F90_Obj  *c_comm,
+@@ -29,4 +28,3 @@ hypre_F90_IFACE(hypre_mpi_comm_f2c, HYPRE_MPI_COMM_F2C)
+    *c_comm = (hypre_F90_Obj) hypre_MPI_Comm_f2c( (hypre_int) *f_comm );
+    *ierr = 0;
+ }
+-#endif

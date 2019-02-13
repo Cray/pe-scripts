@@ -1,0 +1,22 @@
+--- SuperLU_DIST_6.1.1/SRC/pdgstrs_lsum.c.orig	2019-02-12 11:22:52.429774020 -0600
++++ SuperLU_DIST_6.1.1/SRC/pdgstrs_lsum.c	2019-02-12 11:31:09.213542624 -0600
+@@ -1139,7 +1139,7 @@
+ 
+ 						RHS_ITERATE(j)
+ 							#ifdef _OPENMP
+-								#pragma omp simd lastprivate(irow)
++								#pragma omp simd
+ 							#endif
+ 							for (i = 0; i < nbrow1; ++i) {
+ 								irow = lsub[lptr+i] - rel; /* Relative row. */
+--- SuperLU_DIST_6.1.1/SRC/pzgstrs_lsum.c.orig	2019-02-12 11:32:54.062337382 -0600
++++ SuperLU_DIST_6.1.1/SRC/pzgstrs_lsum.c	2019-02-12 11:33:06.490431573 -0600
+@@ -1168,7 +1168,7 @@
+ 
+ 						RHS_ITERATE(j)
+ 							#ifdef _OPENMP
+-								#pragma omp simd lastprivate(irow)
++								#pragma omp simd
+ 							#endif
+ 							for (i = 0; i < nbrow1; ++i) {
+ 								irow = lsub[lptr+i] - rel; /* Relative row. */

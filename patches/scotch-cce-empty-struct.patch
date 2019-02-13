@@ -1,0 +1,15 @@
+CCE cannot handle empty structure definitions.
+
+--- scotch_6.0.3/src/libscotch/graph.h	2014-08-09 05:14:49.000000000 -0500
++++ scotch_6.0.3/src/libscotch/graph.h	2014-12-01 12:07:01.000000000 -0600
+@@ -127,7 +127,9 @@
+   MPI_Comm                  proccomm;             /*+ Communicator used for parallel algorithm +*/
+   int                       procglbnbr;           /*+ Number of processes in communicator      +*/
+   int                       proclocnum;           /*+ Rank of process in current communicator  +*/
+-#endif /* SCOTCH_PTSCOTCH */
++#else
++  int dummy;
++#endif /* !SCOTCH_PTSCOTCH */
+ } GraphProc;
+ 
+ /*+ The graph structure. +*/

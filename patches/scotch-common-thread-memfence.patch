@@ -1,0 +1,16 @@
+--- scotch_6.0.4/src/libscotch/common_thread.c.orig	2015-11-16 14:31:00.000201000 -0600
++++ scotch_6.0.4/src/libscotch/common_thread.c	2015-11-16 14:31:47.000699000 -0600
+@@ -346,7 +346,13 @@
+     thrdptr->thrdnum = -1;                        /* Set threads as not yet launched */
+   }
+ 
++#ifdef _CRAYC
++  __builtin_ia32_mfence ();                       /* Memory fence */
++#elif __PGI
++  __asm__("MFENCE" : :);
++#else
+   __sync_synchronize ();                          /* Full memory barrier */
++#endif
+ 
+   for (thrdnum = 1, dataptr = (byte *) tdattab + datasiz; /* Launch threads from 1 to (thrdnbr - 1) */
+        thrdnum < thrdnbr; thrdnum ++, dataptr += datasiz) {
