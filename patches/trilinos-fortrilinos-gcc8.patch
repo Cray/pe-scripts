@@ -1,0 +1,17 @@
+See https://gcc.gnu.org/gcc-8/porting_to.html
+
+---
+ trilinos-12.12.1-Source/packages/ForTrilinos/src/teuchos/src/forteuchos.f90 |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+--- a/packages/ForTrilinos/src/teuchos/src/forteuchos.f90
++++ b/packages/ForTrilinos/src/teuchos/src/forteuchos.f90
+@@ -12,7 +12,7 @@ module forteuchos
+  public :: ierr
+  public :: serr
+  integer(C_INT), bind(C) :: ierr = 0
+- character(kind=C_CHAR, len=1024), bind(C) :: serr = ""
++ character(kind=C_CHAR), bind(C) :: serr(1024)
+  public :: string
+  public :: ParameterList
+  public :: load_from_xml

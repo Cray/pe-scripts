@@ -1,0 +1,11 @@
+--- a/packages/stk/stk_classic/stk_percept/stk_percept/NoMallocArray.hpp
++++ b/packages/stk/stk_classic/stk_percept/stk_percept/NoMallocArray.hpp
+@@ -173,7 +173,7 @@
+       }
+ 
+       // check range (may be private because it is static)
+-       void rangecheck (size_type i) {
++       void rangecheck (size_type i) const {
+         if (i >= size()) {
+           throw std::out_of_range("NoMallocArray<>: index out of range");
+         }

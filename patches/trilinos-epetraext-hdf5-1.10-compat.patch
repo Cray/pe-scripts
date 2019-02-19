@@ -1,0 +1,72 @@
+See https://www.hdfgroup.org/HDF5/doc/ADGuide/Changes.html for a
+summary of the change in the 'hid_t' type.
+
+--- trilinos-12.6.3-Source/packages/epetraext/src/inout/EpetraExt_HDF5.cpp.orig	2016-04-27 14:41:32.000000000 -0500
++++ trilinos-12.6.3-Source/packages/epetraext/src/inout/EpetraExt_HDF5.cpp	2016-08-17 11:13:05.001761000 -0500
+@@ -1597,7 +1597,7 @@
+ 
+ // ==========================================================================
+ void EpetraExt::HDF5::Write(const std::string& GroupName, const std::string& DataSetName,
+-                         const int type, const int Length,
++                         const hid_t type, const int Length,
+                          void* data)
+ {
+   if (!IsContained(GroupName))
+@@ -1624,7 +1624,7 @@
+ 
+ // ==========================================================================
+ void EpetraExt::HDF5::Read(const std::string& GroupName, const std::string& DataSetName,
+-                        const int type, const int Length,
++                        const hid_t type, const int Length,
+                         void* data)
+ {
+   if (!IsContained(GroupName))
+@@ -1655,7 +1655,7 @@
+ 
+ // ==========================================================================
+ void EpetraExt::HDF5::Write(const std::string& GroupName, const std::string& DataSetName,
+-                         int MySize, int GlobalSize, int type, const void* data)
++                         int MySize, int GlobalSize, hid_t type, const void* data)
+ {
+   int Offset;
+   Comm_.ScanSum(&MySize, &Offset, 1);
+@@ -1706,7 +1706,7 @@
+ // ==========================================================================
+ void EpetraExt::HDF5::Read(const std::string& GroupName, const std::string& DataSetName,
+                         int MySize, int GlobalSize,
+-                        const int type, void* data)
++                        const hid_t type, void* data)
+ {
+   if (!IsOpen())
+     throw(Exception(__FILE__, __LINE__, "no file open yet"));
+--- trilinos-12.6.3-Source/packages/epetraext/src/inout/EpetraExt_HDF5.h.orig	2016-04-27 14:41:32.000000000 -0500
++++ trilinos-12.6.3-Source/packages/epetraext/src/inout/EpetraExt_HDF5.h	2016-08-17 11:12:55.000311000 -0500
+@@ -399,11 +399,11 @@
+ 
+     //! Read the serial array \c data, of type \c type, from group \c GroupName, using the dataset name \c DataSetName.
+     void Read(const std::string& GroupName, const std::string& DataSetName,
+-              const int type, const int Length, void* data);
++              const hid_t type, const int Length, void* data);
+ 
+     //! Write the serial array \c data, of type \c type, to group \c GroupName, using the dataset name \c DataSetName
+     void Write(const std::string& GroupName, const std::string& DataSetName,
+-                         const int type, const int Length, 
++                         const hid_t type, const int Length, 
+                          void* data);
+ 
+     //! Associate string \c Comment with group \c GroupName.
+@@ -424,12 +424,12 @@
+     // @{ \name Distributed arrays
+     
+     //! Write the distributed array \c data, of type \c type, to group \c GroupName, using dataset name \c DataSetName
+-    void Write(const std::string& GroupName, const std::string& DataSetName, int MySize, int GlobalSize, int type, const void* data);
++    void Write(const std::string& GroupName, const std::string& DataSetName, int MySize, int GlobalSize, hid_t type, const void* data);
+ 
+     //! Read the distributed array \c data, of type \c type, from group \c GroupName, using dataset name \c DataSetName
+     void Read(const std::string& GroupName, const std::string& DataSetName,
+               int MySize, int GlobalSize,
+-              const int type, void* data);
++              const hid_t type, void* data);
+ 
+     // @}
+     // @{ \name Epetra_Map/Epetra_BlockMap

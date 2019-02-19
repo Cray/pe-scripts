@@ -1,0 +1,36 @@
+* STK Platform loads some system headers based on which compiler is being
+  used, because the structs and functions it needs are in different places for
+  different compilers.  In the public release it doesn't have support for CCE.
+
+--- a/packages/stk/stk_util/stk_util/diag/Platform.cpp
++++ b/packages/stk/stk_util/stk_util/diag/Platform.cpp
+@@ -109,6 +109,13 @@
+ #include <sys/resource.h>
+ #include <netdb.h>
+ 
++#elif defined(_CRAYC)
++#include <sys/utsname.h>
++#include <sys/time.h>
++#include <sys/resource.h>
++#include <malloc.h>
++#include <netdb.h>
++
+ #else
+ #include <sys/utsname.h>
+ #include <sys/time.h>
+--- trilinos-12.2.1-Source/packages/stk/stk_classic/stk_util/stk_util/diag/Platform.cpp   2015-01-09 14:51:57.000000000 -0600
++++ trilinos-12.2.1-Source/packages/stk/stk_classic/stk_util/stk_util/diag/Platform.cpp   2015-01-14 10:07:26.000000000 -0600
+@@ -85,6 +85,13 @@
+ #include <sys/time.h>
+ #include <sys/resource.h>
+ 
++#elif defined(_CRAYC)
++#include <sys/utsname.h>
++#include <sys/time.h>
++#include <sys/resource.h>
++#include <malloc.h>
++#include <netdb.h>
++
+ #elif defined(REDS)
+ #include <sys/param.h>
+ #include <sys/utsname.h>

@@ -1,0 +1,13 @@
+See https://github.com/trilinos/ForTrilinos/issues/205
+
+--- trilinos-12.12.1-Source/packages/ForTrilinos/CMakeLists.txt	2018-01-17 11:45:19.000000000 -0600
++++ trilinos-12.12.1-Source/packages/ForTrilinos/CMakeLists.txt	2018-01-17 11:45:54.000000000 -0600
+@@ -12,7 +12,7 @@
+ TRIBITS_ADD_SHOW_DEPRECATED_WARNINGS_OPTION()
+ 
+ # Enable unlimited-length lines and C-like preprocessing
+-SET(CMAKE_Fortran_FLAGS "-ffree-line-length-none -cpp ${CMAKE_Fortran_FLAGS}")
++SET(CMAKE_Fortran_FLAGS "-cpp ${CMAKE_Fortran_FLAGS}")
+ 
+ IF (${PACKAGE_NAME}_ENABLE_DeveloperMode)
+     # SWIG setup

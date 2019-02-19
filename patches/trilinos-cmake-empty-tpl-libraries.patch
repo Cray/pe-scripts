@@ -1,0 +1,11 @@
+--- trilinos-12.12.1-Source/cmake/tribits/core/package_arch/TribitsTplFindIncludeDirsAndLibraries.cmake	2017-09-25 13:47:25.000000000 -0500
++++ tpsl-intel/trilinos-12.12.1-Source/cmake/tribits/core/package_arch/TribitsTplFindIncludeDirsAndLibraries.cmake	2019-02-15 15:05:08.519320316 -0600
+@@ -410,7 +410,7 @@
+       SET(LIB_NOT_FOUND_MSG_PREFIX "NOTE:")
+     ENDIF()
+ 
+-    IF (NOT TPL_${TPL_NAME}_LIBRARIES)
++    IF (NOT DEFINED TPL_${TPL_NAME}_LIBRARIES)
+ 
+       IF (MUST_FIND_ALL_LIBS)
+         MESSAGE("-- Must find at least one lib in each of the"

@@ -1,0 +1,15 @@
+* STK needs to know where the "mallinfo" type is declared.  They use
+  the compiler info to determine this.
+
+--- trilinos-12.10.1-Source/packages/stk/stk_util/stk_util/util/heap_usage.cpp
++++ trilinos-12.10.1-Source/packages/stk/stk_util/stk_util/util/heap_usage.cpp
+@@ -8,7 +8,7 @@
+  #include <sys/malloc.h>
+  #endif
+ 
+-#elif defined(__PGI)
++#elif defined(__PGI) || defined(_CRAYC)
+  #include <malloc.h>
+ #endif
+ 
+

@@ -1,0 +1,23 @@
+From 9b150bc2afa84211a206dbc10229f24e6aeb23a0 Mon Sep 17 00:00:00 2001
+From: Nathan Ellingwood <ndellin@sandia.gov>
+Date: Thu, 17 Aug 2017 17:56:37 -0600
+Subject: [PATCH] Amesos2: Add is_contiguous_ member for MUMPS solver
+
+This commit to address issue #1616
+---
+ packages/amesos2/src/Amesos2_MUMPS_decl.hpp | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/packages/amesos2/src/Amesos2_MUMPS_decl.hpp b/packages/amesos2/src/Amesos2_MUMPS_decl.hpp
+index 813aaa273a4..ec56e6dcbf2 100644
+--- trilinos-12.12.1-Source/packages/amesos2/src/Amesos2_MUMPS_decl.hpp
++++ trilinos-12.12.1-Source/packages/amesos2/src/Amesos2_MUMPS_decl.hpp
+@@ -221,6 +221,8 @@ class MUMPS : public SolverCore<Amesos2::MUMPS, Matrix, Vector>
+ 
+   mutable MUMPS_STRUC_C mumps_par;
+ 
++  bool is_contiguous_;
++
+ };                              // End class MUMPS
+ 
+ 
