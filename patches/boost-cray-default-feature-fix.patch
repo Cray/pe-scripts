@@ -1,0 +1,28 @@
+Avoid error in latest boost_1_68_0 with default features:
+
+```
+/ptmp/tmp/bavier/BUILD/boost_1_68_0/tools/build/src/build/feature.jam:787: in expand-composites from module feature
+error: explicitly-specified values of non-free feature <inlining> conflict
+error: existing values: default off
+error: value from expanding  <inlining>off : off
+```
+
+Pass these default values in the invocation of `b2` when `toolset=cray`.
+
+--- boost_1_68_0/tools/build/src/tools/cray.jam
++++ boost_1_68_0/tools/build/src/tools/cray.jam
+@@ -226,10 +226,10 @@
+     # options.
+ 
+     feature.set-default cxxstd-dialect : gnu ;
+-    feature.set-default debug-symbols  : off ;
+-    feature.set-default optimization   : default ;
+-    feature.set-default inlining       : default ;
+-    feature.set-default vectorize      : default ;
++    # feature.set-default debug-symbols  : off ;
++    # feature.set-default optimization   : default ;
++    # feature.set-default inlining       : default ;
++    # feature.set-default vectorize      : default ;
+ }
+ 
+ ###
