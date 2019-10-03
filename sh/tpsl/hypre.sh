@@ -27,9 +27,8 @@ cd hypre-$VERSION
     || fn_error "could not patch source"
 cd src
 ./configure \
+  cross_compiling=yes \
   --prefix=$prefix \
-  --host=`uname -m`-unknown-linux-gnu \
-  --build=`uname -m`-unknown-linux-gnu \
   F77=ftn FC=ftn CC=cc CXX=CC \
   FFLAGS="$FFLAGS $FOMPFLAG" \
   F77FLAGS="$FFLAGS $FOMPFLAG" \

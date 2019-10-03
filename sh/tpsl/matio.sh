@@ -29,10 +29,10 @@ tar xf matio-$VERSION.tar.gz \
   || fn_error "could not untar source"
 cd matio-$VERSION
 ./configure \
+  cross_compiling=yes \
+  ac_cv_va_copy=C99 \
   CC=cc CXX=CC F77=ftn \
   --prefix="$prefix" \
-  --host=`uname -m`-unknown-linux-gnu \
-  --build=`uname -m`-unknown-linux-gnu \
   CFLAGS="$CFLAGS" \
   --enable-extended-sparse \
   --enable-shared \
