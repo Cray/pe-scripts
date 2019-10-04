@@ -28,9 +28,11 @@ unzip >/dev/null 2>&1 \
 cmake --version >/dev/null 2>&1 \
   || fn_error "requires cmake"
 
-(test -e glm-$VERSION.zip && echo "$SHA256SUM  glm-$VERSION.zip" | sha256sum --check) \
+test -e glm-$VERSION.zip \
   || $WGET https://github.com/g-truc/glm/releases/download/$VERSION/glm-$VERSION.zip \
   || fn_error "could not fetch source"
+echo "$SHA256SUM  glm-$VERSION.zip" | sha256sum --check \
+  || fn_error "source hash mismatch"
 unzip glm-$VERSION.zip \
   || fn_error "could not unzip source"
 cd glm

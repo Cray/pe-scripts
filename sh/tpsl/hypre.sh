@@ -18,10 +18,12 @@ top_dir=`_dirname \`_dirname "$0"\``
 
 . $top_dir/.preamble.sh
 
-(test -e hypre-$VERSION.tar.gz && echo "$SHA256SUM  hypre-$VERSION.tar.gz" | sha256sum --check) \
+test -e hypre-$VERSION.tar.gz \
   || $WGET https://github.com/LLNL/hypre/archive/v$VERSION.tar.gz -O hypre-$VERSION.tar.gz \
   || $WGET https://github.com/hypre-space/hypre/archive/v$VERSION.tar.gz -O hypre-$VERSION.tar.gz \
   || fn_error "could not fetch source"
+echo "$SHA256SUM  hypre-$VERSION.tar.gz" | sha256sum --check \
+  || fn_error "source hash mismatch"
 tar xf hypre-$VERSION.tar.gz \
   || fn_error "could not unzip source"
 cd hypre-$VERSION
