@@ -8,6 +8,8 @@ Also remove conditional statement that was likely never be taken given
 the uses of first_lsb_bit_indx and is otherwise equivalent to ffs(x)-1
 when x==0.
 
+NOTE: This patch was incorporated upstream in version 2.18.0.
+
 --- hypre-2.11.1/src/utilities/hypre_hopscotch_hash.h.orig	2016-06-09 09:56:18.000000000 -0500
 +++ hypre-2.11.1/src/utilities/hypre_hopscotch_hash.h	2016-11-02 16:57:44.001679000 -0500
 @@ -48,6 +48,7 @@

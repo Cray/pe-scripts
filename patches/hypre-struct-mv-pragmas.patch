@@ -5,6 +5,8 @@ stringification the OMP1 et al. macros expand to
 
 Other compiler seem not to complain about this...
 
+NOTE: A slightly modified version of this patch was incorporated upstream in version 2.18.0.
+
 diff -Naur hypre-2.14.0-orig/src/struct_ls/red_black_gs.h hypre-2.14.0/src/struct_ls/red_black_gs.h
 --- hypre-2.14.0-orig/src/struct_ls/red_black_gs.h	2018-03-16 17:14:09.000000000 -0500
 +++ hypre-2.14.0/src/struct_ls/red_black_gs.h	2018-04-16 15:43:03.000000000 -0500
