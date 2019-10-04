@@ -6,8 +6,12 @@
 ####
 
 PACKAGE=scotch
-VERSION=6.0.6
-SHA256SUM=686f0cad88d033fe71c8b781735ff742b73a1d82a65b8b1586526d69729ac4cf
+VERSION=6.0.8
+case $VERSION in
+  6.0.6) SHA256SUM=686f0cad88d033fe71c8b781735ff742b73a1d82a65b8b1586526d69729ac4cf ;;
+  6.0.7) SHA256SUM=094e7672d7856236777f5d1988c4cdf6c77c3a8d2fac3d8f770e0b42a08d4ccb ;;
+  6.0.8) SHA256SUM=0ba3f145026174304f910c8770a3cbb034f213c91d939573751cfbb4fd46d45e ;;
+esac
 
 _pwd(){ CDPATH= cd -- $1 && pwd; }
 _dirname(){ _d=`dirname -- "$1"`;  _pwd $_d; }
@@ -34,9 +38,13 @@ echo "$SHA256SUM  scotch_$VERSION.tar.gz" | sha256sum --check \
 tar xf scotch_$VERSION.tar.gz \
   || fn_error "could not untar source"
 cd scotch_$VERSION
-{ patch -f -p1 <$top_dir/../patches/scotch-cce-empty-struct.patch ;
-  patch -f -p1 <$top_dir/../patches/scotch-common-thread-memfence.patch ;
-  patch -f -p1 <$top_dir/../patches/scotch-dummysize-cross.patch ; } \
+# TODO: Port dummy-size-cross patch to latest version
+{ case $VERSION in
+    6.0.6) patch -f -p1 <$top_dir/../patches/scotch-cce-empty-struct.patch ;
+           patch -f -p1 <$top_dir/../patches/scotch-dummysize-cross.patch ;;
+    6.0.8) patch -f -p1 <$top_dir/../patches/scotch-6.0.8-dummysize-cross.patch ;;
+  esac &&
+  patch -f -p1 <$top_dir/../patches/scotch-common-thread-memfence.patch ; } \
     || fn_error "coult not patch source"
 cat >src/Makefile.inc <<EOF
 EXE            =

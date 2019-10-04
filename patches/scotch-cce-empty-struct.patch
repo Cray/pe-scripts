@@ -1,5 +1,7 @@
 CCE cannot handle empty structure definitions.
 
+NOTE: This was fixed upstream in version 6.0.7.
+
 --- scotch_6.0.3/src/libscotch/graph.h	2014-08-09 05:14:49.000000000 -0500
 +++ scotch_6.0.3/src/libscotch/graph.h	2014-12-01 12:07:01.000000000 -0600
 @@ -127,7 +127,9 @@

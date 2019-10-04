@@ -1,0 +1,150 @@
+When building in a cross-compilation environment, dummysizes still
+needs to be able to execute during the build.  This patch uses
+compile-only checks to find and substitute appropriately the sizes of
+opaque objects in scotch headers.
+
+While setting appropriate architecture-targetting flags may be enough
+in some cases, there may be system libraries that are not available
+for linking on the build host.
+
+--- scotch_6.0.8/src/dummysizes.mk	1969-12-31 18:00:00.000000000 -0600
++++ scotch_6.0.8/src/dummysizes.mk	2019-10-04 13:23:01.000000000 -0500
+@@ -0,0 +1,43 @@
++# Compile-only size checks for cross-compilation environments
++define dummysizes
++	tmp=`mktemp` && sed 's/$(2)/$(1)/g' $(2) >$$tmp && \
++	sed -i -e "s/DUMMYVERSION/$(VERSION)/g" \
++	       -e "s/DUMMYRELEASE/$(RELEASE)/g" \
++	       -e "s/DUMMYPATCHLEVEL/$(PATCHLEVEL)/g" $$tmp && \
++	for macro in IDX INT INTVALMAX:MAXINT GNUMSTRING:NUMSTRING ; do \
++	  mac=`echo "$$macro" | sed 's/:.*//'` && \
++	  rep=`echo "$$macro" | sed 's/.*://'` && \
++	  if test -z "$$rep"; then rep=$$mac; fi && \
++	  echo -n "Checking for definition of $$mac..." && \
++	  echo -e "#include \"common.h\"\n#include \"graph.h\"\n==$$mac" >conftest.c && \
++	  val=`$(CC) $(CPPFLAGS) -E -I../libscotch conftest.c | sed -n '/^==/{s/==//;p}'` && \
++	  echo "$$val" && \
++	  sed -i -e "s/DUMMY$$rep/$$val/g" $$tmp; \
++	done && \
++	headers="module common parser graph geom mesh arch mapping order \
++	         library_mapping library_order $(4)" && \
++	for type in ARCHDOM:ArchDom ARCH:Arch GEOM:Geom GRAPH:Graph MESH:Mesh \
++	            MAP:Mapping ORDER:Order STRAT:'Strat *' $(5); do \
++	  mac=`echo "$$type" | sed 's/:.*//'` && \
++	  typ=`echo "$$type" | sed 's/.*://'` && \
++	  echo -n "Checking size of $$typ for $$mac..." && \
++	  for check_size in 4 2 `seq 8 8 800` ; do \
++            rm -f conftest.c; \
++	    for h in $$headers; do \
++              echo "#include \"$$h.h\"" >>conftest.c; \
++	    done; \
++	    echo "int main(){ switch (0) case 0: case (sizeof($$typ) == $$check_size):; }" \
++	      >>conftest.c; \
++	    $(CC) $(CPPFLAGS) $(3) -I../libscotch conftest.c >/dev/null 2>&1 || continue; \
++	    double_size=`expr \( $$check_size + 7 \) / 8` && \
++	    echo "$$check_size ($$double_size*sizeof(double))" && \
++	    sed -i "s/DUMMYSIZE$$mac/$$double_size/g" $$tmp && break; \
++	  done; \
++	done && mv $$tmp $(1) || rm $$tmp $(1)
++endef
++
++define ptdummysizes
++	$(call dummysizes,$(1),$(2),-DSCOTCH_PTSCOTCH,\
++            dgraph dgraph_halo dmapping dorder library_dmapping,\
++            DGRAPHHALOREQ:DgraphHaloRequest DGRAPH:Dgraph DMAP:LibDmapping DORDER:Dorder)
++endef
+--- scotch_6.0.8/src/libscotch/Makefile	2019-05-18 18:53:25.000000000 -0500
++++ scotch_6.0.8/src/libscotch/Makefile	2019-10-04 13:23:07.000000000 -0500
+@@ -40,6 +40,7 @@
+ ##
+ 
+ include ../Makefile.inc
++include ../dummysizes.mk
+ 
+ %$(OBJ)	:	%.c
+ 				$(CC) $(CFLAGS) $(CLIBFLAGS) -c $(<) -o $(@) -DSCOTCH_VERSION_NUM=$(VERSION) -DSCOTCH_RELEASE_NUM=$(RELEASE) -DSCOTCH_PATCHLEVEL_NUM=$(PATCHLEVEL)
+@@ -3052,40 +3053,18 @@
+ 					graph.h					\
+ 					wgraph.h
+ 
+-dummysizes$(EXE)		:	dummysizes.c				\
+-					module.h				\
+-					common.h				\
+-					arch$(OBJ)				\
+-					graph.h					\
+-					geom.h					\
+-					mesh.h					\
+-					mapping.h				\
+-					order.h					\
+-					parser.h
+-			 		$(CCD) $(CCDFLAGS) -DSCOTCH_VERSION_NUM=$(VERSION) -DSCOTCH_RELEASE_NUM=$(RELEASE) -DSCOTCH_PATCHLEVEL_NUM=$(PATCHLEVEL) $(<) -o $(@) $(LDFLAGS)
++scotch.h			:        library.h
++	$(call dummysizes,$@,$<)
+ 
+-ptdummysizes$(EXE)		:	dummysizes.c				\
+-					module.h				\
+-					common.h				\
+-					dgraph.h				\
+-					dorder.h
+-			 		$(CCD) $(CCDFLAGS) -DSCOTCH_VERSION_NUM=$(VERSION) -DSCOTCH_RELEASE_NUM=$(RELEASE) -DSCOTCH_PATCHLEVEL_NUM=$(PATCHLEVEL) $(<) -o $(@) $(LDFLAGS)
++scotchf.h			:        library_f.h
++	$(call dummysizes,$@,$<)
++
++ptscotch.h			:        library_pt.h
++	$(call ptdummysizes,$@,$<)
++
++ptscotchf.h			:	 library_pt_f.h
++	$(call ptdummysizes,$@,$<)
+ 
+-scotch.h			:	dummysizes$(EXE)			\
+-					library.h
+-					./dummysizes$(EXE) "-s$(SCOTCH_NAME_SUFFIX)" library.h scotch.h
+-
+-scotchf.h			:	dummysizes$(EXE) 			\
+-					library_f.h
+-					./dummysizes$(EXE) "-s$(SCOTCH_NAME_SUFFIX)" library_f.h scotchf.h
+-
+-ptscotch.h			:	ptdummysizes$(EXE)			\
+-					library_pt.h
+-					./ptdummysizes$(EXE) "-s$(SCOTCH_NAME_SUFFIX)" library_pt.h ptscotch.h
+-
+-ptscotchf.h			:	ptdummysizes$(EXE)			\
+-					library_pt_f.h
+-					./ptdummysizes$(EXE) "-s$(SCOTCH_NAME_SUFFIX)" library_pt_f.h ptscotchf.h
+ 
+ libscotch$(LIB)			:	$(LIBSCOTCHDEPS)
+ 					$(AR) $(ARFLAGS) $(@) $(?)
+--- scotch_6.0.8/src/libscotchmetis/Makefile	2019-05-18 18:42:19.000000000 -0500
++++ scotch_6.0.8/src/libscotchmetis/Makefile	2019-10-04 13:23:07.000000000 -0500
+@@ -39,6 +39,7 @@
+ ##
+ 
+ include ../Makefile.inc
++include ../dummysizes.mk
+ 
+ %$(OBJ)	:	%.c
+ 				$(CC) $(CFLAGS) $(CLIBFLAGS) -I$(includedir) -I../libscotch -c $(<) -o $(@)
+@@ -82,9 +83,8 @@
+ ##  Todo list.
+ ##
+ 
+-metis.h				:	../libscotch/dummysizes$(EXE)		\
+-					library_metis.h
+-					../libscotch/dummysizes$(EXE) library_metis.h metis.h
++metis.h				:	library_metis.h
++					$(call dummysizes,$@,$<)
+ 
+ metis_graph_order$(OBJ)		:	metis_graph_order.c			\
+ 					../libscotch/module.h			\
+@@ -110,9 +110,8 @@
+ 					$(includedir)/scotch.h			\
+ 					metis.h
+ 
+-parmetis.h			:	../libscotch/dummysizes$(EXE)		\
+-					library_parmetis.h
+-					../libscotch/dummysizes$(EXE) library_parmetis.h parmetis.h
++parmetis.h			:	library_parmetis.h
++					$(call ptdummysizes,$@,$<)
+ 
+ parmetis_dgraph_order$(OBJ)	:	parmetis_dgraph_order.c			\
+ 					../libscotch/module.h			\
