@@ -6,8 +6,11 @@
 ####
 
 PACKAGE=glm
-VERSION=0.9.6.3
-SHA256SUM=14651b56b10fa68082446acaf6a1116d56b757c8d375b34b5226a83140acd2b2
+VERSION=0.9.9.6
+case $VERSION in
+  0.9.6.3) SHA256SUM=14651b56b10fa68082446acaf6a1116d56b757c8d375b34b5226a83140acd2b2 ;;
+  0.9.9.6) SHA256SUM=9db7339c3b8766184419cfe7942d668fecabe9013ccfec8136b39e11718817d0 ;;
+esac
 
 _pwd(){ CDPATH= cd -- $1 && pwd; }
 _dirname(){ _d=`dirname -- "$1"`;  _pwd $_d; }
@@ -31,6 +34,13 @@ cmake --version >/dev/null 2>&1 \
 unzip glm-$VERSION.zip \
   || fn_error "could not unzip source"
 cd glm
+{ printf "converting to unix line-endings..." ;
+  find . -type f -exec sed -i 's/$//' {} \; && echo "done" ; } \
+    || fn_error "could not patch line endings"
+case $VERSION in
+  0.9.9.6) patch --reverse -p1 <$top_dir/../patches/glm-cmake-install.patch \
+             || fn_error "could not patch source" ;;
+esac
 cmake \
   -DGLM_TEST_ENABLE=OFF \
   -DCMAKE_INSTALL_LIBDIR=lib \
