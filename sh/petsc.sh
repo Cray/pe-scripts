@@ -6,8 +6,13 @@
 ####
 
 PACKAGE=petsc
-VERSION=3.10.3
-SHA256SUM=f03650ea5592313dd2b8be7ae9cc498369da660185b58f9e98689a9bc355e982
+VERSION=3.12.2
+case $VERSION in
+  3.10.3) SHA256SUM=f03650ea5592313dd2b8be7ae9cc498369da660185b58f9e98689a9bc355e982 ;;
+  3.10.5) SHA256SUM=6fa0574aebc6e6cb4eea206ef9a3a6037e20e8b54ca91346628a37f79af1407f ;;
+  3.11.4) SHA256SUM=006177b4059cd40310a3e9a4bf475f3a8c276b62d8cca4df272ef88bdfc2f83a ;;
+  3.12.2) SHA256SUM=c30bf8a005e850d1db137b7807a1b780286f70e650e5eba251061133ebd27f63 ;;
+esac
 
 _pwd(){ CDPATH= cd -- $1 && pwd; }
 _dirname(){ _d=`dirname -- "$1"`;  _pwd $_d; }
@@ -175,9 +180,9 @@ exec ./configure \\
   --CPPFLAGS="-I$prefix/include $CPPFLAGS" \\
   --CXXFLAGS="$CFLAGS $OMPFLAG" \\
   --with-cxx-dialect=C++11 \\
-  --FFLAGS="$FFLAGS" \\
+  --FFLAGS="$FFLAGS $FOMPFLAG" \\
   --LDFLAGS="-L$prefix/lib $OMPFLAG" \\
-  --LIBS="$PE_LIBS $LIBS" \\
+  --LIBS="$PE_LIBS $LIBS -lstdc++" \\
   --PETSC_ARCH="$CRAY_CPU_TARGET" \\
   --prefix=$prefix${configure_flags+ \\
   $configure_flags}
