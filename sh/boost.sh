@@ -63,14 +63,14 @@ top_dir=`_dirname "$0"`
 
 cmake --version >/dev/null 2>&1 \
   || fn_error "requires cmake"
-  cat >conftest.c <<EOF
+cat >conftest.c <<EOF
 #include <mpi.h>
 EOF
-  { CC -E -I$prefix/include conftest.c >/dev/null 2>&1 && rm conftest.* ; } \
-    || fn_error "requires MPI"
+{ CC -E -I$prefix/include conftest.c >/dev/null 2>&1 && rm conftest.* ; } \
+  || fn_error "requires MPI"
 
 test -e boost_$_VERSION.tar.bz2 \
-  || $WGET http://dl.bintray.com/boostorg/release/$VERSION/source/boost_$_VERSION.tar.bz2 \
+  || $WGET http://dl.bintray.com/boostorg/release/$VERSION/source/boost_$_VERSION.tar.bz2 -O boost_$_VERSION.tar.bz2 \
   || fn_error "could not fetch source"
 echo "$SHA256SUM  boost_$_VERSION.tar.bz2" | sha256sum --check \
   || fn_error "source hash mismatch"
