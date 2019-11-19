@@ -89,6 +89,7 @@ cd boost_$_VERSION
 
 { patch -f -p1 <$top_dir/../patches/boost-context-cray.patch && \
   patch -f -p1 <$top_dir/../patches/boost-cray-default-feature-fix.patch && \
+  patch -f -p1 <$top_dir/../patches/boost-math-roots-auto.patch && \
   # The config header Boost has for CCE is not up-to-date with respect
   # to CCE >= 8.6 (and even 8.4 and 8.5), so update some of the values
   # so it can build with 8.6.

@@ -1,0 +1,115 @@
+Upstream patch adapted to remove whitespace changes and apply to a
+monolithic boost source tree.  `~Eric Bavier
+
+From 0f7b469ccb16efbb134edb70e3a55788d1a8ed87 Mon Sep 17 00:00:00 2001
+From: jzmaddock <john@johnmaddock.co.uk>
+Date: Thu, 12 Sep 2019 09:01:29 +0100
+Subject: [PATCH] roots.hpp: rework quadratic_roots so that integer types are
+ promoted to double. Add workaround for platforms with no std::fma. Fixes
+ https://github.com/boostorg/math/pull/249.
+
+---
+ include/boost/math/tools/roots.hpp | 595 ++++++++++++++---------------
+ test/test_roots.cpp                |   8 +-
+ 2 files changed, 294 insertions(+), 309 deletions(-)
+
+diff --git a/include/boost/math/tools/roots.hpp b/include/boost/math/tools/roots.hpp
+index ca414a1f0..a44890dce 100644
+--- a/boost/math/tools/roots.hpp
++++ b/boost/math/tools/roots.hpp
+@@ -794,61 +794,32 @@
+ // https://stackoverflow.com/questions/48979861/numerically-stable-method-for-solving-quadratic-equations/50065711
+ namespace detail
+ {
+-    template<class T>
+-    inline T discriminant(T const & a, T const & b, T const & c)
+-    {
+-        T w = 4*a*c;
+-        T e = std::fma(-c, 4*a, w);
++#if defined(BOOST_GNU_STDLIB) && !defined(_GLIBCXX_USE_C99_MATH_TR1)
++float fma_workaround(float f) { return ::fmaf(f); }
++double fma_workaround(double f) { return ::fma(f); }
++#ifndef BOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS
++long double fma_workaround(long double f) { return ::fmal(f); }
++#endif
++#endif            
++template<class T>
++inline T discriminant(T const& a, T const& b, T const& c)
++{
++   T w = 4 * a * c;
++#if defined(BOOST_GNU_STDLIB) && !defined(_GLIBCXX_USE_C99_MATH_TR1)
++   T e = fma_workaround(-c, 4 * a, w);
++   T f = fma_workaround(b, b, -w);
++#else
++   T e = std::fma(-c, 4 * a, w);
+         T f = std::fma(b, b, -w);
++#endif
+         return f + e;
+-    }
+ }
+ 
+ template<class T>
+-auto quadratic_roots(T const& a, T const& b, T const& c)
++std::pair<T, T> quadratic_roots_imp(T const& a, T const& b, T const& c)
+ {
+     using std::copysign;
+     using std::sqrt;
+-    if constexpr (std::is_integral<T>::value)
+-    {
+-        // What I want is to write:
+-        // return quadratic_roots(double(a), double(b), double(c));
+-        // but that doesn't compile.
+-        double nan = std::numeric_limits<double>::quiet_NaN();
+-        if(a==0)
+-        {
+-            if (b==0 && c != 0)
+-            {
+-                return std::pair<double, double>(nan, nan);
+-            }
+-            else if (b==0 && c==0)
+-            {
+-                return std::pair<double, double>(0,0);
+-            }
+-            return std::pair<double, double>(-c/b, -c/b);
+-        }
+-        if (b==0)
+-        {
+-            double x0_sq = -double(c)/double(a);
+-            if (x0_sq < 0) {
+-                return std::pair<double, double>(nan, nan);
+-            }
+-            double x0 = sqrt(x0_sq);
+-            return std::pair<double, double>(-x0,x0);
+-        }
+-        double discriminant = detail::discriminant(double(a), double(b), double(c));
+-        if (discriminant < 0)
+-        {
+-            return std::pair<double, double>(nan, nan);
+-        }
+-        double q = -(b + copysign(sqrt(discriminant), double(b)))/T(2);
+-        double x0 = q/a;
+-        double x1 = c/q;
+-        if (x0 < x1) {
+-            return std::pair<double, double>(x0, x1);
+-        }
+-        return std::pair<double, double>(x1, x0);
+-    }
+     else if constexpr (std::is_floating_point<T>::value)
+     {
+         T nan = std::numeric_limits<T>::quiet_NaN();
+@@ -955,6 +926,15 @@
+         return std::pair<T, T>(x1, x0);
+     }
+ }
++}  // namespace detail
++
++template<class T1, class T2 = T1, class T3 = T1>
++inline std::pair<typename tools::promote_args<T1, T2, T3>::type, typename tools::promote_args<T1, T2, T3>::type> quadratic_roots(T1 const& a, T2 const& b, T3 const& c)
++{
++   typedef typename tools::promote_args<T1, T2, T3>::type value_type;
++   return detail::quadratic_roots_imp(static_cast<value_type>(a), static_cast<value_type>(b), static_cast<value_type>(c));
++}
++
+ #endif
+ 
+ } // namespace tools
