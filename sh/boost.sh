@@ -6,8 +6,12 @@
 ####
 
 PACKAGE=boost
-VERSION=1.68.0 ; _VERSION=`echo $VERSION | tr . _`
-SHA256SUM=7f6130bc3cf65f56a618888ce9d5ea704fa10b462be126ad053e80e553d6d8b7
+VERSION=1.71.0 ; _VERSION=`echo $VERSION | tr . _`
+case $VERSION in
+  1.68.0) SHA256SUM=7f6130bc3cf65f56a618888ce9d5ea704fa10b462be126ad053e80e553d6d8b7 ;;
+  1.70.0) SHA256SUM=430ae8354789de4fd19ee52f3b1f739e1fba576f0aded0897c3c2bc00fb38778 ;;
+  1.71.0) SHA256SUM=d73a8da01e8bf8c7eda40b4c84915071a8c8a0df4a6734537ddde4a8580524ee ;;
+esac
 
 # These are the built libraries needed by trilinos
 boost_libraries="
@@ -19,8 +23,10 @@ boost_libraries="
 "
 # We additionally build the following libraries for users:
 # Peridigm: thread, filesystem, and unit_test
-# Nalu: signals, regex, filesystem, system, mpi, serialization,
-#   thread, program_options, and exception.
+# Nalu:
+#   v1.3.0: program_options
+#   else: signals, regex, filesystem, system, mpi, serialization,
+#         thread, program_options, and exception.
 # deal.II: iostreams, serialization, system, thread
 boost_libraries="$boost_libraries
   container
@@ -34,7 +40,6 @@ boost_libraries="$boost_libraries
   test
   thread
   wave
-  signals
   system
   mpi
   iostreams
@@ -49,6 +54,10 @@ boost_libraries="$boost_libraries
   context
   coroutine
 "
+case $VERSION in
+  1.68.0) boost_libraries="$boost_libraries signals" ;; # removed in later versions
+  *) : ;;
+esac
 
 _pwd(){ CDPATH= cd -- $1 && pwd; }
 _dirname(){ _d=`dirname -- "$1"`;  _pwd $_d; }
