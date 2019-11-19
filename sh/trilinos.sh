@@ -6,14 +6,52 @@
 ####
 
 PACKAGE=trilinos
-VERSION=12.12.1
-SHA256SUM=970bb70150596b823f14c04d9c59938d8d2ed4a1e0cc43d13dff24f326c63d35
+VERSION=12.14.1
+case $VERSION in
+  12.12.1) SHA256SUM=970bb70150596b823f14c04d9c59938d8d2ed4a1e0cc43d13dff24f326c63d35 ;;
+  12.14.1) SHA256SUM=ce0803e52f9e0ebf8af215afd19401c547a891dc34aa3614db002545e77150a4 ;;
+esac
+
 
 _pwd(){ CDPATH= cd -- $1 && pwd; }
 _dirname(){ _d=`dirname -- "$1"`;  _pwd $_d; }
 top_dir=`_dirname "$0"`
 
 . $top_dir/.preamble.sh
+
+
+create_release_tarball()
+{
+  version="$1"
+  dir="trilinos-${version}-Source"
+  case $version in
+    12.14.1)
+      # Note: Use shallow clone to save ~80% of bandwidth
+      git clone --branch trilinos-release-12-14-1 --depth 1 https://github.com/Trilinos/Trilinos.git $dir \
+        && (cd $dir/packages \
+              && git clone https://github.com/Trilinos/ForTrilinos.git \
+              && (cd ForTrilinos ; git checkout 808293ee1a751f0413955a7e0cae710414cc330e))
+      ;;
+      ;;
+    *) fn_error "don't know how to create release tarball for Trilinos $version" ;;
+  esac \
+    && { printf "packing tarball";
+         # We need reproducible tarball generation.  We'd like to use
+         # tar's "--sort=name" option, which was added in tar 1.28,
+         # but it's not available on some OS's we need to support.  So
+         # instead fall back to providing sorted filenames to tar
+         # through the slightly-slower `find | sort`.
+         find $dir -name '.git' -prune -o -print | sort \
+           | tar --checkpoint=1000 --checkpoint-action=exec='printf .' \
+                 --mtime=@`cd $dir && git log -n 1 --pretty=format:"%at"` \
+                 --owner=root:0 --group=root:0 \
+                 --pax-option=exthdr.name=%d/PaxHeaders/%f,delete=atime,delete=ctime \
+                 --exclude=.gitignore --exclude=.gitmodules --exclude=.gitattributes \
+                 --no-recursion --files-from=- -cJf $dir.tar.bz2 \
+           && echo "done"; } \
+    && { printf "removing intermediate source directory..."; rm -rf $dir; echo "done"; } \
+    || fn_error "could not create tarball for Trilinos $version from git"
+}
 
 ##
 ## Requirements:
@@ -70,6 +108,7 @@ fn_check_includes Boost::system boost/system/error_code.hpp
 
 test -e trilinos-$VERSION-Source.tar.bz2 \
   || $WGET http://trilinos.csbsju.edu/download/files/trilinos-$VERSION-Source.tar.bz2 \
+  || create_release_tarball $VERSION \
   || fn_error "could not fetch source"
 echo "$SHA256SUM  trilinos-$VERSION-Source.tar.bz2" | sha256sum --check \
   || fn_error "source hash mismatch"
@@ -79,25 +118,37 @@ cd trilinos-$VERSION-Source
 
 patches="
   trilinos-amesos2-adapters-cce.patch
-  trilinos-amesos2-mumps-fix.patch
   trilinos-boostlib-tpl-lib-list.patch
   trilinos-stk-classic-cv.patch
-  trilinos-stk-mallinfo.patch
   trilinos-stk-platform.patch
-  trilinos-stk-util-env.patch
-  trilinos-sundance-vector.patch
-  trilinos-sundance-vecmat.patch
-  trilinos-superlu5.patch
-  trilinos-superlu-dist-5.4-fix.patch
   trilinos-fei-test-utils.patch
-  trilinos-epetraext-hdf5-1.10-compat.patch
-  trilinos-kokkos-bitops-cce.patch
-  trilinos-kokkos-traits-cce.patch
-  trilinos-fortrilinos-line-length.patch
-  trilinos-fortrilinos-gcc8.patch
 "
+case $compiler:$GCC_VERSION in
+  crayclang:*|gnu:9.*)
+    patches="$patches
+      trilinos-omp-shared-epetra.patch
+      trilinos-omp-shared-stk.patch"
+    ;;
+esac
+fn_versgte $VERSION 12.14.1 \
+  || patches="
+       trilinos-amesos2-mumps-fix.patch
+       trilinos-kokkos-bitops-cce.patch
+       trilinos-kokkos-traits-cce.patch
+       trilinos-stk-mallinfo.patch
+       trilinos-stk-util-env.patch
+       trilinos-sundance-vector.patch
+       trilinos-sundance-vecmat.patch
+       trilinos-superlu5.patch
+       trilinos-superlu-dist-5.4-fix.patch
+       trilinos-epetraext-hdf5-1.10-compat.patch
+       trilinos-fortrilinos-line-length.patch
+       trilinos-fortrilinos-gcc8.patch
+       $patches"
+{ echo "Applying patches:"; for p in $patches ; do echo "  $p"; done ; }
 for p in $patches ; do
-  patch -f -p1 <$top_dir/../patches/$p
+  patch -f -p1 <$top_dir/../patches/$p \
+    || fn_error "patching failed"
 done
 
 trilinos_enable_packages="
@@ -171,6 +222,12 @@ ifpack_OPTIONS="Ifpack_ENABLE_METIS:BOOL=OFF"
 kokkos_OPTIONS="Kokkos_ENABLE_Serial:BOOL=ON,Kokkos_ENABLE_OpenMP:BOOL=ON"
 # Use ParMETIS in ML and Zoltan, instead of METIS
 ml_OPTIONS="ML_ENABLE_METIS:BOOL=OFF"
+case $VERSION in
+  12.12.1) ml_OPTIONS="ML_ENABLE_SuperLU:BOOL=ON,$ml_OPTIONS" ;;
+  # Version 12.14 ML and ShyLU support only SuperLU < 5.0
+  *) ml_OPTIONS="ML_ENABLE_SuperLU:BOOL=OFF,$ml_OPTIONS"
+     shylu_OPTIONS="ShyLU_DDBDDC_ENABLE_SuperLU:BOOL=OFF" ;;
+esac
 # According to RELEASE_NOTES for 11.10: "It it is not advisable to enable
 # both [STK and STKClassic] in a single build of Trilinos"
 stk_OPTIONS="Trilinos_ENABLE_STKClassic:BOOL=OFF"
@@ -346,15 +403,22 @@ EOF
     ;;
 esac
 cat >>configure-trilinos.sh <<EOF
-# We're linking executables dynamically.  CMake sometimes adds
-# '-Wl,-Bdynamic' flags that mess up the libraries that the craype
-# compiler drivers add.  We can work around this by adding
-# -Wl,-Bdynamic flags at the end of link lines.
-echo -n "Adding -Wl,-Bdynamic to end of link lines... "
-find . -name link.txt -exec grep -l dynamic {} + |	\\
-  xargs --no-run-if-empty sed -r --in-place=~		\\
-  -e "s/$/ -Wl,-Bdynamic/" ;
+# Let the CrayPE compiler drivers determine whether libraries are
+# linked statically or dynamically.
+echo -n "Removing -Wl,-B... from link lines... "
+find . -name link.txt |					\\
+  xargs --no-run-if-empty sed --in-place=~		\\
+  -e "s/-Wl,-B\(dynamic\|static\)//g" ;
 echo "done"
+# Work around linker errors about "undefined reference to __dlopen".
+# This seems to be caused by the particular linking order that cmake
+# produces, but can be worked around by leaving only the final
+# reference to libdl on the link line.  Also turn absolute references
+# into relative.
+find . -name link.txt -print |                         \\
+  xargs --no-run-if-empty sed --in-place=~~~           \\
+  -e ":a;s,\([^ ]*/libdl\.[^ ]*\)\(.*\1\),\2,;t a"     \\
+  -e "s,[^ ]*/libdl\.[^ ]*,-ldl,g" ;
 EOF
 
 test "$?" = "0" \

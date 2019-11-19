@@ -1,6 +1,10 @@
 See https://www.hdfgroup.org/HDF5/doc/ADGuide/Changes.html for a
 summary of the change in the 'hid_t' type.
 
+Upstreamed as part of https://github.com/trilinos/Trilinos/pull/1062
+and https://github.com/trilinos/Trilinos/pull/1105 and released in
+version 12.14.1.
+
 --- trilinos-12.6.3-Source/packages/epetraext/src/inout/EpetraExt_HDF5.cpp.orig	2016-04-27 14:41:32.000000000 -0500
 +++ trilinos-12.6.3-Source/packages/epetraext/src/inout/EpetraExt_HDF5.cpp	2016-08-17 11:13:05.001761000 -0500
 @@ -1597,7 +1597,7 @@

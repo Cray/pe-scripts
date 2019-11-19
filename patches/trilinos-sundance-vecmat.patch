@@ -2,6 +2,8 @@ Fixes a warning from clang:
 
   warning: self-comparison always evaluates to false [-Wtautological-compare]
 
+Submitted upstream in https://github.com/trilinos/Sundance/pull/4
+
 --- a/packages/Sundance/src-core/Spectral/VECMAT.h
 +++ b/packages/Sundance/src-core/Spectral/VECMAT.h
 @@ -281,21 +281,21 @@ namespace George
