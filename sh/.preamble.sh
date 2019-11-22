@@ -12,6 +12,16 @@ fn_error()
   exit 1
 }
 
+fn_versmin(){
+  (echo "$1"; echo "$2") \
+    | sort -t. -k1,1n -k2,2n -k3,3n -k4,4n | head -n1
+}
+
+fn_versgte(){
+  test "$1" = "$2" \
+    || test `fn_versmin "$1" "$2"` = "$2"
+}
+
 arg_prev=
 for arg_option ; do
   # If the previous option needs an argument, assign it.
