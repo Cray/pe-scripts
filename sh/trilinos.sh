@@ -69,7 +69,6 @@ fn_check_includes Boost::program_options boost/program_options.hpp
 fn_check_includes Boost::system boost/system/error_code.hpp
 
 test -e trilinos-$VERSION-Source.tar.bz2 \
-  || $WGET https://trilinos.org/oldsite/download/files/trilinos-$VERSION-Source.tar.bz2 \
   || $WGET http://trilinos.csbsju.edu/download/files/trilinos-$VERSION-Source.tar.bz2 \
   || fn_error "could not fetch source"
 echo "$SHA256SUM  trilinos-$VERSION-Source.tar.bz2" | sha256sum --check \
