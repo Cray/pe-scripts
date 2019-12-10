@@ -6,10 +6,11 @@
 ####
 
 PACKAGE=trilinos
-VERSION=12.14.1
+VERSION=12.18.1
 case $VERSION in
   12.12.1) SHA256SUM=970bb70150596b823f14c04d9c59938d8d2ed4a1e0cc43d13dff24f326c63d35 ;;
   12.14.1) SHA256SUM=ce0803e52f9e0ebf8af215afd19401c547a891dc34aa3614db002545e77150a4 ;;
+  12.18.1) SHA256SUM=040b5c90b0c1a9891b5da968a0d61791200c581b149708e6b6514ed03e1735a3 ;;
 esac
 
 
@@ -32,6 +33,11 @@ create_release_tarball()
               && git clone https://github.com/Trilinos/ForTrilinos.git \
               && (cd ForTrilinos ; git checkout 808293ee1a751f0413955a7e0cae710414cc330e))
       ;;
+    12.18.1)
+      git clone --branch trilinos-release-12-18-1 --depth 1 https://github.com/Trilinos/Trilinos.git $dir \
+        && (cd $dir/packages \
+              && git clone https://github.com/Trilinos/ForTrilinos.git \
+              && (cd ForTrilinos ; git checkout 66c45b1d1491af75146abe3b611147fd896a4f56))
       ;;
     *) fn_error "don't know how to create release tarball for Trilinos $version" ;;
   esac \
@@ -122,17 +128,9 @@ cd trilinos-$VERSION-Source
 patches="
   trilinos-amesos2-adapters-cce.patch
   trilinos-boostlib-tpl-lib-list.patch
-  trilinos-stk-classic-cv.patch
   trilinos-stk-platform.patch
   trilinos-fei-test-utils.patch
 "
-case $compiler:$GCC_VERSION in
-  crayclang:*|gnu:9.*)
-    patches="$patches
-      trilinos-omp-shared-epetra.patch
-      trilinos-omp-shared-stk.patch"
-    ;;
-esac
 fn_versgte $VERSION 12.14.1 \
   || patches="
        trilinos-amesos2-mumps-fix.patch
@@ -148,6 +146,19 @@ fn_versgte $VERSION 12.14.1 \
        trilinos-fortrilinos-line-length.patch
        trilinos-fortrilinos-gcc8.patch
        $patches"
+fn_versgte $VERSION 12.18.1 \
+  || {
+  case $compiler:$GCC_VERSION in
+    crayclang:*|gnu:9.*)
+      patches="$patches
+        trilinos-omp-shared-epetra.patch
+        trilinos-omp-shared-stk.patch"
+      ;;
+  esac
+  patches="
+    trilinos-stk-classic-cv.patch
+    trilinos-stk-classic-platform.patch
+    $patches" ; }
 { echo "Applying patches:"; for p in $patches ; do echo "  $p"; done ; }
 for p in $patches ; do
   patch -f -p1 <$top_dir/../patches/$p \

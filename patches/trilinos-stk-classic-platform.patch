@@ -2,11 +2,11 @@
   used, because the structs and functions it needs are in different places for
   different compilers.  In the public release it doesn't have support for CCE.
 
---- a/packages/stk/stk_util/stk_util/diag/Platform.cpp
-+++ b/packages/stk/stk_util/stk_util/diag/Platform.cpp
-@@ -109,6 +109,13 @@
+--- trilinos-12.2.1-Source/packages/stk/stk_classic/stk_util/stk_util/diag/Platform.cpp
++++ trilinos-12.2.1-Source/packages/stk/stk_classic/stk_util/stk_util/diag/Platform.cpp
+@@ -85,6 +85,13 @@
+ #include <sys/time.h>
  #include <sys/resource.h>
- #include <netdb.h>
  
 +#elif defined(_CRAYC)
 +#include <sys/utsname.h>
@@ -15,6 +15,6 @@
 +#include <malloc.h>
 +#include <netdb.h>
 +
- #else
+ #elif defined(REDS)
+ #include <sys/param.h>
  #include <sys/utsname.h>
- #include <sys/time.h>
