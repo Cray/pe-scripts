@@ -112,7 +112,10 @@ test -e trilinos-$VERSION-Source.tar.bz2 \
   || fn_error "could not fetch source"
 echo "$SHA256SUM  trilinos-$VERSION-Source.tar.bz2" | sha256sum --check \
   || fn_error "source hash mismatch"
-tar xf trilinos-$VERSION-Source.tar.bz2 \
+printf "unpacking source" \
+  && tar --checkpoint=1000 --checkpoint-action=exec='printf .' \
+         -xf trilinos-$VERSION-Source.tar.bz2 \
+  && echo "done" \
   || fn_error "could not untar source"
 cd trilinos-$VERSION-Source
 
