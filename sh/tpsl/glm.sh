@@ -33,9 +33,9 @@ test -e glm-$VERSION.zip \
   || fn_error "could not fetch source"
 echo "$SHA256SUM  glm-$VERSION.zip" | sha256sum --check \
   || fn_error "source hash mismatch"
-unzip glm-$VERSION.zip \
+unzip -d glm-$VERSION glm-$VERSION.zip \
   || fn_error "could not unzip source"
-cd glm
+cd glm-$VERSION/glm
 { printf "converting to unix line-endings..." ;
   find . -type f -exec sed -i 's/$//' {} \; && echo "done" ; } \
     || fn_error "could not patch line endings"
