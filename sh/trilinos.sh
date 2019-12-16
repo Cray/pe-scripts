@@ -9,8 +9,8 @@ PACKAGE=trilinos
 VERSION=12.18.1
 case $VERSION in
   12.12.1) SHA256SUM=970bb70150596b823f14c04d9c59938d8d2ed4a1e0cc43d13dff24f326c63d35 ;;
-  12.14.1) SHA256SUM=ce0803e52f9e0ebf8af215afd19401c547a891dc34aa3614db002545e77150a4 ;;
-  12.18.1) SHA256SUM=040b5c90b0c1a9891b5da968a0d61791200c581b149708e6b6514ed03e1735a3 ;;
+  12.14.1) SHA256SUM=cfeac244194a5c9b2c1638d3df8674902f448c0046baf6094e341cf92044a923 ;;
+  12.18.1) SHA256SUM=6339ab1ff373a580fe166b61dc34bd161043a34de7e57cc0329ce4066590499b ;;
 esac
 
 
@@ -47,6 +47,7 @@ create_release_tarball()
          # but it's not available on some OS's we need to support.  So
          # instead fall back to providing sorted filenames to tar
          # through the slightly-slower `find | sort`.
+         export LC_ALL=POSIX;   # for deterministic sorting
          find $dir -name '.git' -prune -o -print | sort \
            | tar --checkpoint=1000 --checkpoint-action=exec='printf .' \
                  --mtime=@`cd $dir && git log -n 1 --pretty=format:"%at"` \
