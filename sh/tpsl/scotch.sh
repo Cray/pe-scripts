@@ -38,7 +38,6 @@ echo "$SHA256SUM  scotch_$VERSION.tar.gz" | sha256sum --check \
 tar xf scotch_$VERSION.tar.gz \
   || fn_error "could not untar source"
 cd scotch_$VERSION
-# TODO: Port dummy-size-cross patch to latest version
 { case $VERSION in
     6.0.6) patch -f -p1 <$top_dir/../patches/scotch-cce-empty-struct.patch ;
            patch -f -p1 <$top_dir/../patches/scotch-dummysize-cross.patch ;;
