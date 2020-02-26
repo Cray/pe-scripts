@@ -18,6 +18,7 @@ software products under the Cray PE environment.
   * [Matio](https://sourceforge.net/projects/matio/)
 * [Boost](https://www.boost.org/)
 * [PETSc](https://www.mcs.anl.gov/petsc/)
+* [SLEPc](https://slepc.upv.es)
 * [Trilinos](https://www.trilinos.org)
 
 ## Usage
