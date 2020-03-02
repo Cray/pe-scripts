@@ -111,7 +111,7 @@ case "$compiler" in
 esac
 case "$compiler" in
   cray)
-    FFLAGS="-O2 -F -em -hnocaf"
+    FFLAGS="-O2 -F -em -ef -hnocaf"
     CFLAGS="-O2 -hnomessage=11709"
     X86FLAGS="-hcpu=x86-64"
     ARCHFLAGS="-hcpu=`echo $CRAY_CPU_TARGET | tr 'A-Z_' 'a-z-'`"
@@ -131,7 +131,7 @@ case "$compiler" in
                   | sed -n '/\bCRAYLIBS_'$_craylibs_arch'\b/{s,[^ ]* *[^ ]* *,,;s,:, -L,g;p;q}'`"
     ;;
   crayclang)
-    FFLAGS="-O2 -F -em -hnocaf"
+    FFLAGS="-O2 -F -em -ef -hnocaf"
     CFLAGS="-O3 -ffast-math"
     PE_LIBS="-lfi -lf -lu -lcraymath -lcraymp -lm"
     ;;
