@@ -20,6 +20,7 @@ software products under the Cray PE environment.
 * [PETSc](https://www.mcs.anl.gov/petsc/)
 * [SLEPc](https://slepc.upv.es)
 * [Trilinos](https://www.trilinos.org)
+* [ADIOS](https://www.olcf.ornl.gov/center-projects/adios/)
 
 ## Usage
 These scripts do not handle dependency resolution,
