@@ -2,16 +2,17 @@
 #
 # Build and install the PETSc library.
 #
-# Copyright 2019 Cray, Inc.
+# Copyright 2019, 2020 Cray, Inc.
 ####
 
 PACKAGE=petsc
-VERSION=3.12.2
+VERSION=3.13.0
 case $VERSION in
   3.10.3) SHA256SUM=f03650ea5592313dd2b8be7ae9cc498369da660185b58f9e98689a9bc355e982 ;;
   3.10.5) SHA256SUM=6fa0574aebc6e6cb4eea206ef9a3a6037e20e8b54ca91346628a37f79af1407f ;;
   3.11.4) SHA256SUM=006177b4059cd40310a3e9a4bf475f3a8c276b62d8cca4df272ef88bdfc2f83a ;;
-  3.12.2) SHA256SUM=c30bf8a005e850d1db137b7807a1b780286f70e650e5eba251061133ebd27f63 ;;
+  3.12.5) SHA256SUM=b4e9aae06b1a343bc5a7fee975f391e7dbc7086fccc684068b5e0204ffa3ecad ;;
+  3.13.0) SHA256SUM=f0ea543a54145c5d1387e25b121c3fd1b1ca834032c5a33f6f1d929e95bdf0e5 ;;
 esac
 
 _pwd(){ CDPATH= cd -- $1 && pwd; }
