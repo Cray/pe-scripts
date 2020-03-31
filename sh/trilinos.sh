@@ -2,15 +2,14 @@
 #
 # Build and install the Trilinos library.
 #
-# Copyright 2019 Cray, Inc.
+# Copyright 2019, 2020 Cray, Inc.
 ####
 
 PACKAGE=trilinos
 VERSION=12.18.1
 case $VERSION in
-  12.12.1) SHA256SUM=970bb70150596b823f14c04d9c59938d8d2ed4a1e0cc43d13dff24f326c63d35 ;;
-  12.14.1) SHA256SUM=cfeac244194a5c9b2c1638d3df8674902f448c0046baf6094e341cf92044a923 ;;
-  12.18.1) SHA256SUM=6339ab1ff373a580fe166b61dc34bd161043a34de7e57cc0329ce4066590499b ;;
+  12.14.1) SHA256SUM=10a88f034b8f91904a98970c00fa88b7f4acd59429d2c4870a60c6e297fc044a ;;
+  12.18.1) SHA256SUM=8a6b8e676c548ca9da0c02671bad2169380bc59d8bd12f9960948898dea18d77 ;;
 esac
 
 
@@ -48,13 +47,16 @@ create_release_tarball()
          # instead fall back to providing sorted filenames to tar
          # through the slightly-slower `find | sort`.
          export LC_ALL=POSIX;   # for deterministic sorting
+         mtime=`cd $dir && git log -n 1 --pretty=format:"%at"`
          find $dir -name '.git' -prune -o -print | sort \
            | tar --checkpoint=1000 --checkpoint-action=exec='printf .' \
-                 --mtime=@`cd $dir && git log -n 1 --pretty=format:"%at"` \
+                 --mtime=@$mtime \
                  --owner=root:0 --group=root:0 \
-                 --pax-option=exthdr.name=%d/PaxHeaders/%f,delete=atime,delete=ctime \
+                 --pax-option=globexthdr.name=/tmp/GlobalHead.%n \
+                 --pax-option=globexthdr.mtime=$mtime \
+                 --pax-option=exthdr.name=%d/PaxHeaders/%f,delete=atime,delete=ctime,mtime=$mtime \
                  --exclude=.gitignore --exclude=.gitmodules --exclude=.gitattributes \
-                 --no-recursion --files-from=- -cJf $dir.tar.bz2 \
+                 --no-recursion --files-from=- -cJf $dir.tar.xz \
            && echo "done"; } \
     && { printf "removing intermediate source directory..."; rm -rf $dir; echo "done"; } \
     || fn_error "could not create tarball for Trilinos $version from git"
@@ -70,6 +72,7 @@ create_release_tarball()
 ##  - boost
 ##  - hdf5
 ##  - netcdf
+##  - tar >= 1.27 for source verification
 ##
 
 fn_check_includes()
@@ -93,6 +96,16 @@ EOF
 cmake --version >/dev/null 2>&1 \
   || fn_error "requires cmake"
 
+# Versions of tar < 1.27 produce slightly different header entries for
+# the "devmajor", "devminor", and "cksum" header fields.
+tar --mtime=0 --owner=root --group=root \
+    --pax-option=exthdr.name=%d/PaxHeaders/%f,mtime=0,delete=atime,delete=ctime \
+    --pax-option=globexthdr.name=/tmp/GlobalHead.%n --pax-option=globexthdr.mtime=0 \
+    --files-from=/dev/null -cf - \
+  | sha256sum | awk '{print $1}' \
+  | test `cat` = 89e86be755e306be8e78b8df6031ed20f693eeacd886af8701c6c534aa94be0f \
+  || fn_error "requires tar >= 1.27"
+
 fn_check_link BLAS dgemm_
 fn_check_link ScaLAPACK pdgetrf_
 fn_check_includes MPI mpi.h
@@ -113,15 +126,14 @@ fn_check_includes Boost::chrono boost/chrono.hpp
 fn_check_includes Boost::program_options boost/program_options.hpp
 fn_check_includes Boost::system boost/system/error_code.hpp
 
-test -e trilinos-$VERSION-Source.tar.bz2 \
-  || $WGET http://trilinos.csbsju.edu/download/files/trilinos-$VERSION-Source.tar.bz2 \
+test -e trilinos-$VERSION-Source.tar.xz \
   || create_release_tarball $VERSION \
   || fn_error "could not fetch source"
-echo "$SHA256SUM  trilinos-$VERSION-Source.tar.bz2" | sha256sum --check \
+echo "$SHA256SUM  trilinos-$VERSION-Source.tar.xz" | sha256sum --check \
   || fn_error "source hash mismatch"
 printf "unpacking source" \
   && tar --checkpoint=1000 --checkpoint-action=exec='printf .' \
-         -xf trilinos-$VERSION-Source.tar.bz2 \
+         -xf trilinos-$VERSION-Source.tar.xz \
   && echo "done" \
   || fn_error "could not untar source"
 cd trilinos-$VERSION-Source
