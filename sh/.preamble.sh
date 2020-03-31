@@ -4,7 +4,7 @@ prefix=${TMPDIR:-/tmp}/$USER/_install
 make_jobs=1
 show_help=false
 
-: ${WGET=wget --progress=dot:mega} # for fetching source tarballs
+: ${WGET=wget --tries=2 --progress=dot:mega} # for fetching source tarballs
 
 fn_error()
 {
