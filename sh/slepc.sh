@@ -6,8 +6,11 @@
 ####
 
 PACKAGE=slepc
-VERSION=3.12.2
-SHA256SUM=a586ce572a928ed87f04961850992a9b8e741677397cbaa3fb028323eddf4598
+VERSION=3.13.0
+case $VERSION in
+  3.12.2) SHA256SUM=a586ce572a928ed87f04961850992a9b8e741677397cbaa3fb028323eddf4598 ;;
+  3.13.0) SHA256SUM=f1f3c2d13a1a6914e7bf4746d38761e107ea866f50927b639e4ad5918dd1e53b ;;
+esac
 
 _pwd(){ CDPATH= cd -- $1 && pwd; }
 _dirname(){ _d=`dirname -- "$1"`;  _pwd $_d; }
