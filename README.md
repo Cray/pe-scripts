@@ -57,3 +57,5 @@ The TPSL libraries can also be built individually, e.g.:
 ```sh
 $ ./sh/tpsl/superlu.sh --prefix=$prefix --jobs=8
 ```
+The TPSL script has a rudimentary inventory system to avoid installing
+TPSL libraries that have already been installed to the given prefix.

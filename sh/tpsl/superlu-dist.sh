@@ -2,7 +2,7 @@
 #
 # Build and install the Superlu_DIST library.
 #
-# Copyright 2019 Cray, Inc.
+# Copyright 2019, 2020 Cray, Inc.
 ####
 
 PACKAGE=superlu-dist
@@ -104,6 +104,7 @@ case "$compiler" in
 esac
 make --jobs=$make_jobs install \
   || fn_error "build failed"
+fn_checkpoint_tpsl
 
 # Local Variables:
 # indent-tabs-mode:nil

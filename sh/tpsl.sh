@@ -14,10 +14,12 @@ top_dir=`_dirname "$0"`
 . $top_dir/.preamble.sh
 
 ##
-## TPSL is a collection of libraries.  Install each.
+## TPSL is a collection of libraries.  Install each that has not
+## already be installed according to a $prefix/.tpsl file.
 ##
 
-for lib in glm hypre matio metis scotch parmetis mumps sundials superlu superlu-dist ; do
+for lib in `printf "%s\n" glm hypre matio metis scotch parmetis mumps sundials superlu superlu-dist \
+            | grep -vxFf $prefix/.tpsl -` ; do
   $top_dir/tpsl/$lib.sh --jobs=$make_jobs --prefix=$prefix \
     || fn_error "failed to install $lib"
 done

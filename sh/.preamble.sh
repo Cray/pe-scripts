@@ -22,6 +22,12 @@ fn_versgte(){
     || test `fn_versmin "$1" "$2"` = "$2"
 }
 
+fn_checkpoint_tpsl(){
+  if ! test -e $prefix/.tpsl || ! grep -q $PACKAGE $prefix/.tpsl ; then
+    printf "%s\n" "$PACKAGE" >>$prefix/.tpsl
+  fi
+}
+
 arg_prev=
 for arg_option ; do
   # If the previous option needs an argument, assign it.

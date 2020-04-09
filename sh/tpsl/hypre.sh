@@ -2,7 +2,7 @@
 #
 # Build and install the HYPRE library.
 #
-# Copyright 2019 Cray, Inc.
+# Copyright 2019, 2020 Cray, Inc.
 ####
 
 PACKAGE=hypre
@@ -58,6 +58,7 @@ cd src
 # Do not build blas and lapack code
 make --jobs=$make_jobs HYPRE_BASIC_DIRS=utilities BLASFILES= LAPACKFILES= install \
   || fn_error "build failed"
+fn_checkpoint_tpsl
 
 # Local Variables:
 # indent-tabs-mode:nil

@@ -2,7 +2,7 @@
 #
 # Build and install the MUMPS library.
 #
-# Copyright 2019 Cray, Inc.
+# Copyright 2019, 2020 Cray, Inc.
 ####
 
 PACKAGE=mumps
@@ -95,6 +95,7 @@ make --jobs=$make_jobs alllib \
 cp lib/lib*.a "$prefix/lib" \
   && cp include/*.h "$prefix/include" \
   || fn_error "install failed"
+fn_checkpoint_tpsl
 
 # Local Variables:
 # indent-tabs-mode:nil

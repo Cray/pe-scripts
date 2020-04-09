@@ -2,7 +2,7 @@
 #
 # Build and install the parmetis library.
 #
-# Copyright 2019 Cray, Inc.
+# Copyright 2019, 2020 Cray, Inc.
 ####
 
 PACKAGE=parmetis
@@ -72,6 +72,7 @@ make config \
   || fn_error "configuration failed"
 make --jobs=$make_jobs install \
   || fn_error "build failed"
+fn_checkpoint_tpsl
 
 # Local Variables:
 # indent-tabs-mode:nil

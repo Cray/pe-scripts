@@ -2,7 +2,7 @@
 #
 # Build and install the scotch library.
 #
-# Copyright 2019 Cray, Inc.
+# Copyright 2019, 2020 Cray, Inc.
 ####
 
 PACKAGE=scotch
@@ -95,6 +95,7 @@ make -C src prefix="$prefix" install \
   && cp include/esmumps.h "$prefix/include" \
   && cp lib/*esmumps* "$prefix/lib" \
   || fn_error "install failed"
+fn_checkpoint_tpsl
 
 # Local Variables:
 # indent-tabs-mode:nil
