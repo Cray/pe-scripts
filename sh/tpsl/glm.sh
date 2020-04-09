@@ -6,11 +6,10 @@
 ####
 
 PACKAGE=glm
-VERSION=0.9.9.6
-case $VERSION in
-  0.9.6.3) SHA256SUM=14651b56b10fa68082446acaf6a1116d56b757c8d375b34b5226a83140acd2b2 ;;
-  0.9.9.6) SHA256SUM=9db7339c3b8766184419cfe7942d668fecabe9013ccfec8136b39e11718817d0 ;;
-esac
+VERSIONS='
+  0.9.6.3:14651b56b10fa68082446acaf6a1116d56b757c8d375b34b5226a83140acd2b2
+  0.9.9.6:9db7339c3b8766184419cfe7942d668fecabe9013ccfec8136b39e11718817d0
+'
 
 _pwd(){ CDPATH= cd -- $1 && pwd; }
 _dirname(){ _d=`dirname -- "$1"`;  _pwd $_d; }

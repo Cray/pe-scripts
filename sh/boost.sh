@@ -6,12 +6,18 @@
 ####
 
 PACKAGE=boost
-VERSION=1.71.0 ; _VERSION=`echo $VERSION | tr . _`
-case $VERSION in
-  1.68.0) SHA256SUM=7f6130bc3cf65f56a618888ce9d5ea704fa10b462be126ad053e80e553d6d8b7 ;;
-  1.70.0) SHA256SUM=430ae8354789de4fd19ee52f3b1f739e1fba576f0aded0897c3c2bc00fb38778 ;;
-  1.71.0) SHA256SUM=d73a8da01e8bf8c7eda40b4c84915071a8c8a0df4a6734537ddde4a8580524ee ;;
-esac
+VERSIONS='
+  1.68.0:7f6130bc3cf65f56a618888ce9d5ea704fa10b462be126ad053e80e553d6d8b7
+  1.69.0:8f32d4617390d1c2d16f26a27ab60d97807b35440d45891fa340fc2648b04406
+  1.70.0:430ae8354789de4fd19ee52f3b1f739e1fba576f0aded0897c3c2bc00fb38778
+  1.71.0:d73a8da01e8bf8c7eda40b4c84915071a8c8a0df4a6734537ddde4a8580524ee
+'
+
+_pwd(){ CDPATH= cd -- $1 && pwd; }
+_dirname(){ _d=`dirname -- "$1"`;  _pwd $_d; }
+top_dir=`_dirname "$0"`
+
+. $top_dir/.preamble.sh
 
 # These are the built libraries needed by trilinos
 boost_libraries="
@@ -59,12 +65,6 @@ case $VERSION in
   *) : ;;
 esac
 
-_pwd(){ CDPATH= cd -- $1 && pwd; }
-_dirname(){ _d=`dirname -- "$1"`;  _pwd $_d; }
-top_dir=`_dirname "$0"`
-
-. $top_dir/.preamble.sh
-
 ##
 ## Requirements:
 ##  - MPI
@@ -78,6 +78,7 @@ EOF
 { CC -E -I$prefix/include conftest.c >/dev/null 2>&1 && rm conftest.* ; } \
   || fn_error "requires MPI"
 
+_VERSION=`echo $VERSION | tr . _`
 test -e boost_$_VERSION.tar.bz2 \
   || $WGET http://dl.bintray.com/boostorg/release/$VERSION/source/boost_$_VERSION.tar.bz2 -O boost_$_VERSION.tar.bz2 \
   || fn_error "could not fetch source"

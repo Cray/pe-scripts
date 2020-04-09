@@ -1,8 +1,17 @@
+# Common utilities.
+#
+# Copyright 2019, 2020 Cray, Inc.
+####
+
 # Requires the "PACKAGE" variable be defined before sourcing.
 
 prefix=${TMPDIR:-/tmp}/$USER/_install
 make_jobs=1
 show_help=false
+
+if test "${VERSION+set}" != "set" ; then
+  VERSION=`echo "$VERSIONS" | sed -n '/^ *$/!h;${g;s/^ *//;s/ *$//;s/:.*//;p}'`
+fi
 
 : ${WGET=wget --tries=2 --progress=dot:mega} # for fetching source tarballs
 
@@ -56,6 +65,10 @@ for arg_option ; do
       make_jobs=$arg_optarg ;;
     -j*)
       make_jobs=`expr "$arg_option" : '-j\([0-9][0-9]*\)'` ;;
+    --version | --versio | --versi | --vers | --ver | --ve)
+      printf "%s\n" "$VERSION"; exit 0 ;;
+    --version=* | --versio=* | --versi=* | --vers=* | --ver=* | --ve=*)
+      VERSION=$arg_optarg ;;
     -*) fn_error "unrecognized option: '$arg_option'
 Try \`$0 --help' for more information"
   esac
@@ -63,7 +76,7 @@ done
 
 if $show_help ; then
   cat <<EOF
-Usage: $PACKAGE [OPTIONS]
+Usage: $0 [OPTIONS]
 
 Default for option is specified in brackets.
 
@@ -71,10 +84,36 @@ Options:
   -h, --help        Print this help message
   --prefix=<DIR>    Install package under DIR [$prefix]
   -j[N], --jobs[=N] Build with up to N processes [$make_jobs]
-                    
+EOF
+  if test "${VERSIONS+set}" = "set" ; then
+    cat <<EOF
+  --version[=<VER>] Build and install version VER of $PACKAGE.
+                    Must be one of the available versions
+                    listed below.  Without argument: print the
+                    current version [$VERSION]
+
+Available versions:
+EOF
+    for v in `echo $VERSIONS | sed 's/:[^ ]*//g'` ; do
+      case $v in
+        $VERSION) printf "  - %s (*)\n" $v ;;
+        *)        printf "  - %s\n" $v ;;
+      esac
+    done
+  elif test "$VERSION" ; then
+    cat <<EOF
+  --version         Print the current version [$VERSION]
+EOF
+  fi
+  cat <<EOF
+
 Send bug reports to bavier@cray.com
 EOF
   status=$?
+fi
+if test "$VERSION" -a ! "$SHA256SUM" ; then \
+  SHA256SUM=`echo $VERSIONS | sed 's/.*'$VERSION':\([^ ]*\).*/\1/;t;q1'` \
+    || fn_error "no known sha256sum for version $VERSION"
 fi
 $show_help && exit $status
 

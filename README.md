@@ -28,14 +28,14 @@ but do rudimentary checks for prerequisites.  They will use system libraries if 
 
 Each script supports a `--help` option for convenience:
 ```sh
-$ ./sh/petsc.sh --help
-Usage: ./sh/petsc.sh [OPTIONS]
+$ ./sh/tpsl.sh --help
+Usage: ./sh/tpsl.sh [OPTIONS]
 
 Default for option is specified in brackets.
 
 Options:
   -h, --help        Print this help message
-  --prefix=<DIR>    Install package under DIR [/lus/scratch/bavier/tmp/bavier/_install]
+  --prefix=<DIR>    Install package under DIR [/tmp/jdoe/_install]
   -j[N], --jobs[=N] Build with up to N processes [1]
 
 Send bug reports to bavier@cray.com
@@ -59,3 +59,41 @@ $ ./sh/tpsl/superlu.sh --prefix=$prefix --jobs=8
 ```
 The TPSL script has a rudimentary inventory system to avoid installing
 TPSL libraries that have already been installed to the given prefix.
+
+### Version selection
+
+Some package scripts can install one of several different versions.
+If this is the case, then the output from `--help` will list the
+available versions than can be chosen with the `--version=...` option,
+e.g.:
+```sh
+$ ./sh/petsc.sh --help
+Usage: ./sh/petsc.sh [OPTIONS]
+
+Default for option is specified in brackets.
+
+Options:
+  -h, --help        Print this help message
+  --prefix=<DIR>    Install package under DIR [/tmp/jdoe/_install]
+  -j[N], --jobs[=N] Build with up to N processes [1]
+  --version[=<VER>] Build and install version VER of petsc.
+                    Must be one of the available versions
+                    listed below.  Without argument: print the
+                    current version [3.13.0]
+
+Available versions:
+  - 3.10.3
+  - 3.10.5
+  - 3.11.4
+  - 3.12.5
+  - 3.13.0 (*)
+
+Send bug reports to bavier@cray.com
+$ ./sh/petsc.sh --version=3.12.5 --prefix=$prefix --jobs=4
+```
+
+For packages such as PETSc or Trilinos, that can satisfy dependencies
+using packages installed from these scripts, there are no guarantees
+if using an arbitrary combination of package versions.  Generally, the
+default versions should work properly together, and other combinations
+may be untested.

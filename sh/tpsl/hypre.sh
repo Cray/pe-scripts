@@ -6,11 +6,10 @@
 ####
 
 PACKAGE=hypre
-VERSION=2.18.0
-case $VERSION in
-  2.14.0) SHA256SUM=10cfcd555618137c194958f84f44724fece45b58c59002d1195fed354e2ca16c ;;
-  2.18.0) SHA256SUM=62591ac69f9cc9728bd6d952b65bcadd2dfe52b521081612609804a413f49b07 ;;
-esac
+VERSIONS='
+  2.14.0:10cfcd555618137c194958f84f44724fece45b58c59002d1195fed354e2ca16c
+  2.18.0:62591ac69f9cc9728bd6d952b65bcadd2dfe52b521081612609804a413f49b07
+'
 
 _pwd(){ CDPATH= cd -- $1 && pwd; }
 _dirname(){ _d=`dirname -- "$1"`;  _pwd $_d; }

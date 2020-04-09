@@ -6,11 +6,10 @@
 ####
 
 PACKAGE=mumps
-VERSION=5.2.1
-case $VERSION in
-  5.1.2) SHA256SUM=eb345cda145da9aea01b851d17e54e7eef08e16bfa148100ac1f7f046cd42ae9 ;;
-  5.2.1) SHA256SUM=d988fc34dfc8f5eee0533e361052a972aa69cc39ab193e7f987178d24981744a ;;
-esac
+VERSIONS='
+  5.1.2:eb345cda145da9aea01b851d17e54e7eef08e16bfa148100ac1f7f046cd42ae9
+  5.2.1:d988fc34dfc8f5eee0533e361052a972aa69cc39ab193e7f987178d24981744a
+'
 
 _pwd(){ CDPATH= cd -- $1 && pwd; }
 _dirname(){ _d=`dirname -- "$1"`;  _pwd $_d; }

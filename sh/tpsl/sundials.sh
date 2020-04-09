@@ -6,11 +6,10 @@
 ####
 
 PACKAGE=sundials
-VERSION=4.1.0
-case $VERSION in
-  2.7.0) SHA256SUM=d39fcac7175d701398e4eb209f7e92a5b30a78358d4a0c0fcc23db23c11ba104 ;;
-  4.1.0) SHA256SUM=280de1c27b2360170a6f46cb3799b2aee9dff3bddbafc8b08c291a47ab258aa5 ;;
-esac
+VERSIONS='
+  2.7.0:d39fcac7175d701398e4eb209f7e92a5b30a78358d4a0c0fcc23db23c11ba104
+  4.1.0:280de1c27b2360170a6f46cb3799b2aee9dff3bddbafc8b08c291a47ab258aa5
+'
 
 _pwd(){ CDPATH= cd -- $1 && pwd; }
 _dirname(){ _d=`dirname -- "$1"`;  _pwd $_d; }
