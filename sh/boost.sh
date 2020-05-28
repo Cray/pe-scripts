@@ -118,7 +118,7 @@ cd boost_$_VERSION
 
   :undef
   s/define/undef/p
-  ' boost/config/compiler/cray.hpp ;
+  ' boost/config/compiler/cray.hpp && \
   # See https://github.com/boostorg/build/commit/3385fe2aa699a45e722a1013658f824b6a7c761f
   sed -i 's/\(emit\|include\)-pth/\1-pch/' tools/build/src/tools/clang-linux.jam ; } \
     || fn_error "could not patch"
