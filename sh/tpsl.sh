@@ -2,7 +2,7 @@
 #
 # Build and install Cray's TPSL library collection.
 #
-# Copyright 2019 Cray, Inc.
+# Copyright 2019, 2020 Cray, Inc.
 ####
 
 PACKAGE=tpsl
@@ -18,11 +18,15 @@ top_dir=`_dirname "$0"`
 ## already be installed according to a $prefix/.tpsl file.
 ##
 
-for lib in `printf "%s\n" glm hypre matio metis scotch parmetis mumps sundials superlu superlu-dist \
-            | grep -vxFf $prefix/.tpsl -` ; do
+printf "%s\n" glm hypre matio metis scotch parmetis mumps sundials superlu superlu-dist \
+  | { if test -e $prefix/.tpsl ; then
+        grep -vxFf $prefix/.tpsl -
+      else cat ; fi ; } \
+  | while read lib ; do
   $top_dir/tpsl/$lib.sh --jobs=$make_jobs --prefix=$prefix \
     || fn_error "failed to install $lib"
-done
+done || exit $?
+
 
 echo "tpsl: done!  Installed to $prefix"
 
