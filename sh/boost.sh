@@ -2,7 +2,7 @@
 #
 # Build and install the Boost library.
 #
-# Copyright 2019 Cray, Inc.
+# Copyright 2019, 2020 Cray, Inc.
 ####
 
 PACKAGE=boost
@@ -11,6 +11,7 @@ VERSIONS='
   1.69.0:8f32d4617390d1c2d16f26a27ab60d97807b35440d45891fa340fc2648b04406
   1.70.0:430ae8354789de4fd19ee52f3b1f739e1fba576f0aded0897c3c2bc00fb38778
   1.71.0:d73a8da01e8bf8c7eda40b4c84915071a8c8a0df4a6734537ddde4a8580524ee
+  1.72.0:59c9b274bc451cf91a9ba1dd2c7fdcaf5d60b1b3aa83f2c9fa143417cc660722
 '
 
 _pwd(){ CDPATH= cd -- $1 && pwd; }
@@ -90,7 +91,8 @@ cd boost_$_VERSION
 
 { patch -f -p1 <$top_dir/../patches/boost-context-cray.patch && \
   patch -f -p1 <$top_dir/../patches/boost-cray-default-feature-fix.patch && \
-  patch -f -p1 <$top_dir/../patches/boost-math-roots-auto.patch && \
+  { fn_versgte "$VERSION" "1.72" \
+      || patch -f -p1 <$top_dir/../patches/boost-math-roots-auto.patch ; } && \
   # The config header Boost has for CCE is not up-to-date with respect
   # to CCE >= 8.6 (and even 8.4 and 8.5), so update some of the values
   # so it can build with 8.6.
