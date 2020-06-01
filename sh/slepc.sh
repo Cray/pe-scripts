@@ -8,7 +8,7 @@
 PACKAGE=slepc
 VERSIONS='
   3.12.2:a586ce572a928ed87f04961850992a9b8e741677397cbaa3fb028323eddf4598
-  3.13.0:f1f3c2d13a1a6914e7bf4746d38761e107ea866f50927b639e4ad5918dd1e53b
+  3.13.2:04cb8306cb5d4d990509710d7f8ae949bdc2c7eb850930b8d0b0b5ca99f6c70d
 '
 
 _pwd(){ CDPATH= cd -- $1 && pwd; }
@@ -66,9 +66,9 @@ test "$?" = "0" \
   && chmod +x configure-slepc.sh \
   && ./configure-slepc.sh \
   || fn_error "configuration failed"
-make MAKE_NP=$make_jobs all \
+make SLEPC_DIR=$PWD MAKE_NP=$make_jobs all \
   || fn_error "build failed"
-make install \
+make SLEPC_DIR=$PWD install \
   || fn_error "install failed"
 
 # Local Variables:
