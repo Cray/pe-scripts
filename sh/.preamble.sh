@@ -17,8 +17,16 @@ fi
 
 fn_error()
 {
+  fn_error_status=$?
   echo "$PACKAGE: error: $1"
-  exit 1
+  exit $fn_error_status
+}
+
+fn_warn()
+{
+  fn_warn_status=$?
+  printf "%s: warning: %s\n" "$PACKAGE" "$@"
+  return $fn_warn_status
 }
 
 fn_versmin(){

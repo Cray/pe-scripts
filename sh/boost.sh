@@ -68,7 +68,11 @@ esac
 
 ##
 ## Requirements:
+##  - cmake
 ##  - MPI
+##
+## Optional:
+##  - Python+numpy
 ##
 
 cmake --version >/dev/null 2>&1 \
@@ -78,6 +82,20 @@ cat >conftest.c <<EOF
 EOF
 { CC -E -I$prefix/include conftest.c >/dev/null 2>&1 && rm conftest.* ; } \
   || fn_error "requires MPI"
+cat >conftest.c <<EOF
+#include <numpy/arrayobject.h>
+EOF
+{ { py_include=`python -c 'import sys; print(sys.prefix + "/include/python" + sys.version[:3])' 2>/dev/null` \
+      || fn_warn "python unavailable" ; } \
+    && { numpy_include=`python -c "import numpy; print(numpy.get_include())" 2>/dev/null` \
+           || fn_warn "numpy unavailable" ; } \
+    && { CC -E -I$prefix/include ${py_include:+-I$py_include} ${numpy_include:+-I$numpy_include} \
+            conftest.c  >/dev/null 2>&1 \
+           || fn_warn "numpy/arrayobject.h unavailable" ; } \
+    && rm conftest.* ; } \
+  && boost_libraries="$boost_libraries python" \
+  || fn_warn "not enabling Boost::Python"
+
 
 _VERSION=`echo $VERSION | tr . _`
 test -e boost_$_VERSION.tar.bz2 \
