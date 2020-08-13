@@ -152,7 +152,7 @@ case $compiler in
     toolset=gcc ;;
   intel)
     toolset=intel-linux ;;
-  *clang)
+  *clang|allinea)
     toolset=clang ;;
   *)
     toolset=$compiler ;;

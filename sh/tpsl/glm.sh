@@ -44,6 +44,8 @@ case $VERSION in
 esac
 cmake \
   -DGLM_TEST_ENABLE=OFF \
+  -DCMAKE_CXX_COMPILER:STRING=CC \
+  -DCMAKE_CXX_FLAGS="$CFLAGS" \
   -DCMAKE_INSTALL_LIBDIR=lib \
   -DCMAKE_INSTALL_PREFIX=$prefix \
   || fn_error "configuration failed"

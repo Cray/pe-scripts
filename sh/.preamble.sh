@@ -140,7 +140,7 @@ case $PE_ENV in
       compiler=cray
     fi
     ;;
-  GNU|INTEL|PGI) compiler=`echo $PE_ENV | tr A-Z a-z` ;;
+  GNU|INTEL|PGI|ALLINEA) compiler=`echo $PE_ENV | tr A-Z a-z` ;;
   *) fn_error "could not detect compiler vendor" ;;
 esac
 
@@ -152,10 +152,12 @@ case "$compiler" in
 esac
 case "$compiler" in
   cray)  OMPFLAG="-homp" ;;
-  gnu)   OMPFLAG="-fopenmp" ;;
   intel) OMPFLAG="-qopenmp" ;;
   pgi)   OMPFLAG="-mp" ;;
-  crayclang) OMPFLAG="-fopenmp" ; FOMPFLAG="-homp" ;;
+  gnu|crayclang|allinea) OMPFLAG="-fopenmp" ;
+esac
+case "$compiler" in
+  crayclang) FOMPFLAG="-homp" ;;
 esac
 case "$compiler" in
   cray) C99FLAG="-hstd=c99" ;;
@@ -275,6 +277,9 @@ case "$compiler" in
     CFLAGS="$FFLAGS $ARCHFLAGS"
     FFLAGS="$FFLAGS $ARCHFLAGS"
     ;;
+  allinea)
+    FFLAGS="-O3 -ffast-math"
+    CFLAGS="$FFLAGS"
 esac                            # %{compiler}
 
 : ${FOMPFLAG="$OMPFLAG"}
