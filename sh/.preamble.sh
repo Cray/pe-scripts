@@ -125,6 +125,12 @@ if test "$VERSION" -a ! "$SHA256SUM" ; then \
 fi
 $show_help && exit $status
 
+# Check that the install prefix is absolute
+case "$prefix" in
+  /*) : ;;
+  *) fn_error "installation prefix must be absolute" ;;
+esac
+
 # Check that our wget "works"
 $WGET --version >/dev/null 2>&1 \
   || fn_error "set the WGET variable to a functional wget program"
