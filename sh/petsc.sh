@@ -150,7 +150,7 @@ exec ./configure \\
   --with-fc=ftn \\
   --with-fortran-datatypes=0 \\
   --with-fortran-interfaces=0 \\
-  --with-fortranlib-autodetect=0 \\
+  --with-fortranlib-autodetect=1 \\
   --with-ranlib=ranlib \\
   --with-scalar-type=real \\
   --with-shared-ld=ar \\

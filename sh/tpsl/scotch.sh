@@ -79,8 +79,9 @@ CPPFLAGS = $CPPFLAGS \\
 CFLAGS    = \$(CPPFLAGS) $CFLAGS
 CFLAGS_DS = \$(CPPFLAGS) $CFLAGS_NATIVE
 # The librt library is needed for the "clock_gettime" calls;
-# libpthread for "pthread_join" and "pthread_create".
-LDFLAGS   = $PE_LDDIRS $PE_LIBS $LDFLAGS -lrt -lpthread
+# libpthread for "pthread_join" and "pthread_create";
+# libm for "fmod" in parser.c, etc.
+LDFLAGS   = $PE_LDDIRS $PE_LIBS $LDFLAGS -lrt -lpthread -lm
 EOF
 test "$?" = "0" \
   && mkdir -p "$prefix/lib" "$prefix/include" \
