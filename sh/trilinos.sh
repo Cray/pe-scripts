@@ -18,12 +18,9 @@ top_dir=`_dirname "$0"`
 
 . $top_dir/.preamble.sh
 
-
-create_release_tarball()
-{
-  version="$1"
-  dir="trilinos-${version}-Source"
-  case $version in
+fn_trilinos_git_checkout(){
+  dir="$1"
+  case $VERSION in
     12.14.1)
       # Note: Use shallow clone to save ~80% of bandwidth
       git clone --branch trilinos-release-12-14-1 --depth 1 https://github.com/Trilinos/Trilinos.git $dir \
@@ -37,28 +34,8 @@ create_release_tarball()
               && git clone https://github.com/Trilinos/ForTrilinos.git \
               && (cd ForTrilinos ; git checkout 66c45b1d1491af75146abe3b611147fd896a4f56))
       ;;
-    *) fn_error "don't know how to create release tarball for Trilinos $version" ;;
-  esac \
-    && { printf "packing tarball";
-         # We need reproducible tarball generation.  We'd like to use
-         # tar's "--sort=name" option, which was added in tar 1.28,
-         # but it's not available on some OS's we need to support.  So
-         # instead fall back to providing sorted filenames to tar
-         # through the slightly-slower `find | sort`.
-         export LC_ALL=POSIX;   # for deterministic sorting
-         mtime=`cd $dir && git log -n 1 --pretty=format:"%at"`
-         find $dir -name '.git' -prune -o -print | sort \
-           | tar --checkpoint=1000 --checkpoint-action=exec='printf .' \
-                 --mtime=@$mtime \
-                 --owner=root:0 --group=root:0 \
-                 --pax-option=globexthdr.name=/tmp/GlobalHead.%n \
-                 --pax-option=globexthdr.mtime=$mtime \
-                 --pax-option=exthdr.name=%d/PaxHeaders/%f,delete=atime,delete=ctime,mtime=$mtime \
-                 --exclude=.gitignore --exclude=.gitmodules --exclude=.gitattributes \
-                 --no-recursion --files-from=- -cJf $dir.tar.xz \
-           && echo "done"; } \
-    && { printf "removing intermediate source directory..."; rm -rf $dir; echo "done"; } \
-    || fn_error "could not create tarball for Trilinos $version from git"
+    *) return 1 ;;              # cannot checkout for this version
+  esac
 }
 
 ##
@@ -95,16 +72,6 @@ EOF
 cmake --version >/dev/null 2>&1 \
   || fn_error "requires cmake"
 
-# Versions of tar < 1.27 produce slightly different header entries for
-# the "devmajor", "devminor", and "cksum" header fields.
-tar --mtime=0 --owner=root --group=root \
-    --pax-option=exthdr.name=%d/PaxHeaders/%f,mtime=0,delete=atime,delete=ctime \
-    --pax-option=globexthdr.name=/tmp/GlobalHead.%n --pax-option=globexthdr.mtime=0 \
-    --files-from=/dev/null -cf - \
-  | sha256sum | awk '{print $1}' \
-  | test `cat` = 89e86be755e306be8e78b8df6031ed20f693eeacd886af8701c6c534aa94be0f \
-  || fn_error "requires tar >= 1.27"
-
 fn_check_link BLAS dgemm_
 fn_check_link ScaLAPACK pdgetrf_
 fn_check_includes MPI mpi.h
@@ -126,7 +93,7 @@ fn_check_includes Boost::program_options boost/program_options.hpp
 fn_check_includes Boost::system boost/system/error_code.hpp
 
 test -e trilinos-$VERSION-Source.tar.xz \
-  || create_release_tarball $VERSION \
+  || fn_create_git_tarball trilinos-$VERSION-Source \
   || fn_error "could not fetch source"
 echo "$SHA256SUM  trilinos-$VERSION-Source.tar.xz" | sha256sum --check \
   || fn_error "source hash mismatch"

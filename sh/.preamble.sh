@@ -45,6 +45,62 @@ fn_checkpoint_tpsl(){
   fi
 }
 
+fn_check_tar_version(){
+  if ${fn_cv_check_tar_version_done+:}; then return; fi
+  # Versions of tar < 1.27 produce slightly different header entries
+  # for the "devmajor", "devminor", and "cksum" header fields.
+  tar --mtime=0 --owner=root --group=root \
+      --pax-option=exthdr.name=%d/PaxHeaders/%f,mtime=0,delete=atime,delete=ctime \
+      --pax-option=globexthdr.name=/tmp/GlobalHead.%n --pax-option=globexthdr.mtime=0 \
+      --files-from=/dev/null -cf - \
+    | sha256sum | awk '{print $1}' \
+    | test `cat` = 89e86be755e306be8e78b8df6031ed20f693eeacd886af8701c6c534aa94be0f \
+    && fn_cv_check_tar_version_done=yes \
+    || fn_error "requires tar >= 1.27"
+}
+
+fn_pack_git_tarball(){
+  dir="$1"
+  fn_check_tar_version
+  printf "packing tarball";
+  # We need reproducible tarball generation.  We'd like to use tar's
+  # "--sort=name" option, which was added in tar 1.28, but it's not
+  # available on some OS's we need to support.  So instead fall back
+  # to providing sorted filenames to tar through the slightly-slower
+  # `find | sort`.
+  export LC_ALL=POSIX;   # for deterministic sorting
+  mtime=`cd $dir && git log -n 1 --pretty=format:"%at"`
+  find $dir -name '.git' -prune -o -print | sort \
+    | tar --checkpoint=1000 --checkpoint-action=exec='printf .' \
+          --mtime=@$mtime \
+          --owner=root:0 --group=root:0 \
+          --pax-option=globexthdr.name=/tmp/GlobalHead.%n \
+          --pax-option=globexthdr.mtime=$mtime \
+          --pax-option=exthdr.name=%d/PaxHeaders/%f,delete=atime,delete=ctime,mtime=$mtime \
+          --exclude=.gitignore --exclude=.gitmodules --exclude=.gitattributes \
+          --no-recursion --files-from=- -cJf $dir.tar.xz \
+    && printf "done\n"
+}
+
+fn_create_git_tarball()
+{
+  dir="$1"
+  checkout="fn_${PACKAGE}_git_checkout"
+  fn_check_tar_version
+  case "$(command -v $checkout)" in
+    $checkout)
+      if ! $checkout $dir ; then
+        fn_error "don't know how to make release tarball for version $VERSION"
+      fi ;;
+    "") fn_error "missing definition of $checkout" ;;
+  esac \
+    && fn_pack_git_tarball $dir \
+    && { printf "removing intermediate source directory..." ;
+         rm -rf $dir ;
+         printf "done\n" ; } \
+    || fn_error "could not create tarball for version $VERSION from git"
+}
+
 arg_prev=
 for arg_option ; do
   # If the previous option needs an argument, assign it.
