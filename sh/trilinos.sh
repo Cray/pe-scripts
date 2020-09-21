@@ -56,7 +56,7 @@ fn_check_includes()
   cat >conftest.c <<EOF
 #include <$2>
 EOF
-  { CC -E -I$prefix/include conftest.c >/dev/null 2>&1 && rm conftest.* ; } \
+  { CC -E -I$prefix/include $CPPFLAGS conftest.c >/dev/null 2>&1 && rm conftest.* ; } \
     || fn_error "requires $1"
 }
 fn_check_link()
@@ -65,7 +65,7 @@ fn_check_link()
 extern "C" { int $2(); }
 int main(){ $2(); }
 EOF
-  { CC -L$prefix/lib conftest.c >/dev/null 2>&1 && rm conftest.* ; } \
+  { CC -L$prefix/lib $LDFLAGS conftest.c $LIBS >/dev/null 2>&1 && rm conftest.* ; } \
     || fn_error "requires $1"
 }
 
