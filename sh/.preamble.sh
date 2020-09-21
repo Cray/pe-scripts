@@ -186,6 +186,9 @@ case "$prefix" in
   /*) : ;;
   *) fn_error "installation prefix must be absolute" ;;
 esac
+# Add any "bin" directory from $prefix to PATH
+test -d "$prefix/bin" \
+  && PATH="$prefix/bin:$PATH"
 
 # Check that our wget "works"
 $WGET --version >/dev/null 2>&1 \
