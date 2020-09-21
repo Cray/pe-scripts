@@ -258,7 +258,7 @@ esac
 mkdir -p _build && cd _build
 cat >configure-trilinos.sh <<EOF
 #!/bin/sh
-: \${CMAKE=cmake}
+: \${CMAKE=`command -v cmake`}
 rm -rf CMakeFiles CMakeCache.txt
 unset DESTDIR # Prevent installing into anything but \$CMAKE_INSTALL_PREFIX
 \$CMAKE \\
