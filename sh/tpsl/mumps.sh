@@ -18,6 +18,13 @@ top_dir=`_dirname \`_dirname "$0"\``
 
 . $top_dir/.preamble.sh
 
+case "$compiler:$GCC_VERSION" in
+  gnu:10.*)
+    # See https://listes.ens-lyon.fr/sympa/arc/mumps-users/2020-05/msg00006.html
+    FFLAGS="-fallow-argument-mismatch $FFLAGS"
+    ;;
+esac
+
 ##
 ## Requirements:
 ##  - scotch
