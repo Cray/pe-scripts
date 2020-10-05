@@ -105,6 +105,7 @@ printf "unpacking source" \
 cd trilinos-$VERSION-Source
 
 patches="
+  trilinos-fortran-arg-mismatch.patch
   trilinos-amesos2-adapters-cce.patch
   trilinos-boostlib-tpl-lib-list.patch
   trilinos-stk-platform.patch
