@@ -35,7 +35,8 @@ exec ./configure \\
   --prefix=$prefix \\
   --parallel=${JOBS:-1} \\
   --mandir=share/man \\
-  --docdir=share/doc/cmake-$version_major_minor
+  --docdir=share/doc/cmake-$version_major_minor \\
+  -- -DCMAKE_USE_OPENSSL:BOOL=OFF
 EOF
 test "$?" = "0" \
   && chmod +x configure-cmake.sh \
