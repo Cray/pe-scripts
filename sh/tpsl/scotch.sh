@@ -2,7 +2,7 @@
 #
 # Build and install the scotch library.
 #
-# Copyright 2019, 2020 Cray, Inc.
+# Copyright 2019, 2020, 2021 Hewlett Packard Enterprise Development LP.
 ####
 
 PACKAGE=scotch
@@ -10,6 +10,9 @@ VERSIONS='
   6.0.6:686f0cad88d033fe71c8b781735ff742b73a1d82a65b8b1586526d69729ac4cf
   6.0.7:094e7672d7856236777f5d1988c4cdf6c77c3a8d2fac3d8f770e0b42a08d4ccb
   6.0.8:0ba3f145026174304f910c8770a3cbb034f213c91d939573751cfbb4fd46d45e
+  6.0.9:e57e16c965bab68c1b03389005ecd8a03745ba20fd9c23081c0bb2336972d879
+  6.0.10:fd8b707b8200823312a1571d97d3776ff3dfd3280cfa4b6e38987153cea5dbda
+  6.1.0:a3bc3fa3b243fcb52f8d68de4272562a0328afb18a96f535724d284e36730485
 '
 
 _pwd(){ CDPATH= cd -- $1 && pwd; }
