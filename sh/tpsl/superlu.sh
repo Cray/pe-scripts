@@ -2,12 +2,12 @@
 #
 # Build and install the SUPERLU library.
 #
-# Copyright 2019, 2020 Cray, Inc.
+# Copyright 2019, 2020, 2021 Hewlett Packard Enterprise Development LP.
 ####
 
 PACKAGE=superlu
-VERSION=5.2.1
-SHA256SUM=28fb66d6107ee66248d5cf508c79de03d0621852a0ddeba7301801d3d859f463
+VERSION=5.2.2
+SHA256SUM=470334a72ba637578e34057f46948495e601a5988a602604f5576367e606a28c
 
 _pwd(){ CDPATH= cd -- $1 && pwd; }
 _dirname(){ _d=`dirname -- "$1"`;  _pwd $_d; }
@@ -30,30 +30,26 @@ EOF
   || fn_error "requires METIS"
 
 test -e superlu_$VERSION.tar.gz \
-  || $WGET http://crd-legacy.lbl.gov/~xiaoye/SuperLU/superlu_$VERSION.tar.gz \
+  || $WGET https://portal.nersc.gov/project/sparse/superlu/superlu_$VERSION.tar.gz \
   || fn_error "could not fetch source"
 echo "$SHA256SUM  superlu_$VERSION.tar.gz" | sha256sum --check \
   || fn_error "source hash mismatch"
 tar xf superlu_$VERSION.tar.gz \
   || fn_error "could not untar source"
-cd SuperLU_$VERSION
+cd SuperLU_$VERSION 2>/dev/null || cd superlu-$VERSION
 patch -f -p1 <<'EOF'
 Let SuperLU configure with a BLAS library that's available without
 adding any additional libraries.  User must configure with
 "-DBLAS_FOUND:BOOL=YES".
 
---- SuperLU_5.2.1/CMakeLists.txt	2016-05-22 10:58:44.000000000 -0500
-+++ SuperLU_5.2.1/CMakeLists.txt	2018-09-24 11:03:34.000000000 -0500
-@@ -76,7 +76,7 @@
- #
- #--------------------- BLAS ---------------------
- if(NOT enable_blaslib)
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -76,4 +76,4 @@
 -  if (TPL_BLAS_LIBRARIES)
 +  if (BLAS_FOUND OR TPL_BLAS_LIBRARIES)
      set(BLAS_FOUND TRUE)
    else()
      find_package(BLAS)
-
 EOF
 test "$?" = "0" \
   || fn_error "could not patch"
