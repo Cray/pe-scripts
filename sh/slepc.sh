@@ -2,13 +2,14 @@
 #
 # Build and install the SLEPc library.
 #
-# Copyright 2020 Cray, Inc.
+# Copyright 2020, 2021 Hewlett Packard Enterprise Development LP.
 ####
 
 PACKAGE=slepc
 VERSIONS='
   3.12.2:a586ce572a928ed87f04961850992a9b8e741677397cbaa3fb028323eddf4598
-  3.13.2:04cb8306cb5d4d990509710d7f8ae949bdc2c7eb850930b8d0b0b5ca99f6c70d
+  3.13.4:ddc9d58e1a4413218f4e67ea3b255b330bd389d67f394403a27caedf45afa496
+  3.14.1:cc78a15e34d26b3e6dde003d4a30064e595225f6185c1975bbd460cb5edd99c7
 '
 
 _pwd(){ CDPATH= cd -- $1 && pwd; }
