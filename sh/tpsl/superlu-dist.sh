@@ -2,12 +2,15 @@
 #
 # Build and install the Superlu_DIST library.
 #
-# Copyright 2019, 2020 Cray, Inc.
+# Copyright 2019, 2020, 2021 Hewlett Packard Enterprise Development LP.
 ####
 
 PACKAGE=superlu-dist
-VERSION=6.1.1
-SHA256SUM=4ae956e57aa6c1c3a3a9627f5e464409e9a120e39f3a6e0c75aa021ac37759aa
+VERSIONS="
+  6.1.1:4ae956e57aa6c1c3a3a9627f5e464409e9a120e39f3a6e0c75aa021ac37759aa
+  6.3.1:713b1993fc5426229c5ccd4be499defb1b040ff9209adb7fe97bbec880dcbc52
+  6.4.0:cb9c0b2ba4c28e5ed5817718ba19ae1dd63ccd30bc44c8b8252b54f5f04a44cc
+"
 
 _pwd(){ CDPATH= cd -- $1 && pwd; }
 _dirname(){ _d=`dirname -- "$1"`;  _pwd $_d; }
@@ -35,13 +38,14 @@ EOF
   || fn_error "requires ParMETIS"
 
 test -e superlu_dist_$VERSION.tar.gz \
-  || $WGET http://crd-legacy.lbl.gov/~xiaoye/SuperLU/superlu_dist_$VERSION.tar.gz \
+  || $WGET https://portal.nersc.gov/project/sparse/superlu/superlu_dist_$VERSION.tar.gz \
+  || $WGET https://github.com/xiaoyeli/superlu_dist/archive/v$VERSION.tar.gz -O superlu_dist_$VERSION.tar.gz \
   || fn_error "could not fetch source"
 echo "$SHA256SUM  superlu_dist_$VERSION.tar.gz" | sha256sum --check \
   || fn_error "source hash mismatch"
 tar xf superlu_dist_$VERSION.tar.gz \
   || fn_error "could not untar source"
-cd SuperLU_DIST_$VERSION
+cd SuperLU_DIST_$VERSION 2>/dev/null || cd superlu_dist-$VERSION
 patch -f -p1 <$top_dir/../patches/superlu-dist-omp.patch \
   || fn_error "could not patch"
 patch -f -p1 <<'EOF'
@@ -82,9 +86,10 @@ cmake \
   -DCMAKE_Fortran_FLAGS="$FFLAGS $FOMPFLAG" \
   -DCMAKE_C_FLAGS="$CFLAGS $C99FLAG $OMPFLAG $CPPFLAGS" \
   -DOpenMP_CXX_FLAGS="$OMPFLAG" \
-  -DBUILD_SHARED_LIBS=OFF \
+  -DBUILD_SHARED_LIBS:BOOL=OFF \
   -DCMAKE_EXE_LINKER_FLAGS:STRING="$LDFLAGS $OMPFLAG -L$prefix/lib" \
   -DTPL_ENABLE_BLASLIB:BOOL=YES \
+  -DTPL_BLAS_LIBRARIES="" \
   -DBLAS_FOUND:BOOL=YES \
   -DTPL_ENABLE_LAPACKLIB:BOOL=YES \
   -DTPL_LAPACK_LIBRARIES="" \
