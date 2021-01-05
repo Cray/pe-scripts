@@ -2,7 +2,7 @@
 #
 # Build and install the Trilinos library.
 #
-# Copyright 2019, 2020 Cray, Inc.
+# Copyright 2019, 2020, 2021 Hewlett Packard Enterprise Development LP.
 ####
 
 PACKAGE=trilinos
@@ -106,6 +106,7 @@ cd trilinos-$VERSION-Source
 
 patches="
   trilinos-fortran-arg-mismatch.patch
+  trilinos-amesos-superlu-dist-6.4.patch
   trilinos-amesos2-adapters-cce.patch
   trilinos-boostlib-tpl-lib-list.patch
   trilinos-stk-platform.patch
