@@ -2,7 +2,7 @@
 #
 # Build and install the SUNDIALS library.
 #
-# Copyright 2019, 2020 Cray, Inc.
+# Copyright 2019, 2020, 2021 Hewlett Packard Enterprise Development LP.
 ####
 
 PACKAGE=sundials
@@ -26,6 +26,7 @@ cmake --version >/dev/null 2>&1 \
 
 test -e sundials-$VERSION.tar.gz \
   || $WGET https://computation.llnl.gov/projects/sundials/download/sundials-$VERSION.tar.gz \
+  || $WGET https://github.com/LLNL/sundials/releases/download/v$VERSION/sundials-$VERSION.tar.gz \
   || fn_error "could not fetch source"
 echo "$SHA256SUM  sundials-$VERSION.tar.gz" | sha256sum --check \
   || fn_error "source hash mismatch"
