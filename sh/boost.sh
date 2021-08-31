@@ -2,7 +2,7 @@
 #
 # Build and install the Boost library.
 #
-# Copyright 2019, 2020 Cray, Inc.
+# Copyright 2019, 2020, 2021 Hewlett Packard Enterprise Development LP.
 ####
 
 PACKAGE=boost
@@ -12,6 +12,8 @@ VERSIONS='
   1.70.0:430ae8354789de4fd19ee52f3b1f739e1fba576f0aded0897c3c2bc00fb38778
   1.71.0:d73a8da01e8bf8c7eda40b4c84915071a8c8a0df4a6734537ddde4a8580524ee
   1.72.0:59c9b274bc451cf91a9ba1dd2c7fdcaf5d60b1b3aa83f2c9fa143417cc660722
+  1.73.0:4eb3b8d442b426dc35346235c8733b5ae35ba431690e38c6a8263dce9fcbb402
+  1.74.0:83bfc1507731a0906e387fc28b7ef5417d591429e51e788417fe9ff025e116b1
 '
 
 _pwd(){ CDPATH= cd -- $1 && pwd; }
@@ -99,6 +101,7 @@ EOF
 
 _VERSION=`echo $VERSION | tr . _`
 test -e boost_$_VERSION.tar.bz2 \
+  || $WGET https://boostorg.jfrog.io/artifactory/main/release/$VERSION/source/boost_$_VERSION.tar.bz2 \
   || $WGET http://dl.bintray.com/boostorg/release/$VERSION/source/boost_$_VERSION.tar.bz2 -O boost_$_VERSION.tar.bz2 \
   || fn_error "could not fetch source"
 echo "$SHA256SUM  boost_$_VERSION.tar.bz2" | sha256sum --check \
